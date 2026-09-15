@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portafolio — Intro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stage">
+    <div id="word" aria-label="Portafolio">
+      <span>P</span><span>O</span><span>R</span><span>T</span><span id="letterA">A</span><span>F</span><span>O</span><span>L</span><span>I</span><span>O</span>
+    </div>
+
+    <canvas id="particles" data-particle-portfolio aria-label="Portafolio"></canvas>
+
+    <div id="cursor" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M4 2 L4 20 L8.5 16 L11.5 22 L14 20.5 L11 14.5 L17 14.5 Z" fill="#ffffff" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div id="menu" aria-live="polite">
+      <div class="menu-item">Nuevo documento</div>
+      <div class="menu-item">Abrir...</div>
+      <div class="menu-item">Guardar como...</div>
+      <div class="menu-item">Exportar assets...</div>
+      <div class="menu-item">Preferencias</div>
+      <div class="menu-divider"></div>
+      <div class="menu-item enabled" id="toqueUnico">Toque único</div>
+    </div>
+
+    <button id="replay" type="button">↺ Reiniciar</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="components/particle-portfolio.js"></script>
+</body>
+</html>
