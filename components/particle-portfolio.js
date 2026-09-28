@@ -145,9 +145,9 @@ if (canvas) {
     });
 
     const colorStops = [
-      [255, 238, 74],
-      [0, 238, 255],
-      [255, 76, 166],
+        [255, 137, 201],
+        [124, 220, 255],
+        [174, 135, 255],
     ];
 
     const getParticleColor = (position) => {
@@ -268,15 +268,12 @@ if (canvas) {
             particle.y += particle.vy;
 
             const rise = Math.max(0, (particle.oy - particle.y) * 0.2);
-            const alpha = Math.min(1, 0.8 + rise / 120);
+            const alpha = Math.min(1, 0.35 + rise / 80);
 
             context.beginPath();
-            context.shadowBlur = 8;
-            context.shadowColor = 'rgba(0, 0, 0, 0.8)';
             context.fillStyle = particle.color.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
             context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
             context.fill();
-            context.shadowBlur = 0;
         });
 
         if (!reduced) {

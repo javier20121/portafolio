@@ -22,6 +22,7 @@
         <path d="M4 2 L4 20 L8.5 16 L11.5 22 L14 20.5 L11 14.5 L17 14.5 Z" fill="#ffffff" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"/>
       </svg>
     </div>
+    
 
     <div id="menu" aria-live="polite">
       <div class="menu-item">Nuevo documento</div>
@@ -36,7 +37,183 @@
     <button id="replay" type="button">↺ Reiniciar</button>
   </div>
 
+  <section class="section-cami" aria-labelledby="cami-title">
+    <div class="cami-panel">
+      <div class="cami-viewport" id="camiViewport" aria-label="Panel del cartel CAMI">
+        <div id="camiModel" class="cami-model" aria-label="Modelo 3D de Camila"></div>
+        <div class="led-glow" aria-hidden="true"></div>
+      </div>
+
+      <div class="cami-controls">
+        <button id="powerSwitch" class="power-switch" type="button" role="switch" aria-checked="false" aria-label="Encender o apagar el cartel">
+          <span class="switch-track">
+            <span class="switch-thumb"></span>
+          </span>
+          <span class="switch-label">OFF</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="components/particle-portfolio.js"></script>
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js';
+    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/loaders/GLTFLoader.js';
+
+    const camiSection = document.querySelector('.section-cami');
+    const camiViewport = document.getElementById('camiViewport');
+    const camiModel = document.getElementById('camiModel');
+    const powerSwitch = document.getElementById('powerSwitch');
+    const ledGlow = document.querySelector('.led-glow');
+
+    if (camiViewport && camiModel && powerSwitch && camiSection && ledGlow) {
+      const ledPositions = [
+        { x: 17, y: 27, s: 10 }, { x: 24, y: 27, s: 10 }, { x: 31, y: 27, s: 10 },
+        { x: 40, y: 22, s: 11 }, { x: 50, y: 22, s: 11 }, { x: 60, y: 22, s: 11 },
+        { x: 72, y: 27, s: 10 }, { x: 80, y: 27, s: 10 }, { x: 88, y: 27, s: 10 },
+        { x: 18, y: 46, s: 11 }, { x: 30, y: 46, s: 11 }, { x: 43, y: 46, s: 11 },
+        { x: 57, y: 46, s: 11 }, { x: 72, y: 46, s: 11 }, { x: 84, y: 46, s: 11 },
+        { x: 22, y: 66, s: 11 }, { x: 36, y: 66, s: 11 }, { x: 50, y: 66, s: 11 },
+        { x: 64, y: 66, s: 11 }, { x: 79, y: 66, s: 11 }, { x: 86, y: 66, s: 11 },
+        { x: 16, y: 84, s: 10 }, { x: 32, y: 84, s: 10 }, { x: 49, y: 84, s: 10 },
+        { x: 66, y: 84, s: 10 }, { x: 82, y: 84, s: 10 }
+      ];
+
+      ledPositions.forEach((point) => {
+        const dot = document.createElement('span');
+        dot.className = 'led-dot';
+        dot.style.setProperty('--x', `${point.x}%`);
+        dot.style.setProperty('--y', `${point.y}%`);
+        dot.style.setProperty('--size', `${point.s}px`);
+        ledGlow.appendChild(dot);
+      });
+
+      let dragActive = false;
+      let startX = 0;
+      let modelRotation = 0.45;
+      let modelRoot = null;
+      let animationFrameId = null;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(30, camiViewport.clientWidth / camiViewport.clientHeight, 0.1, 100);
+      camera.position.set(0, 1.15, 5.6);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(camiViewport.clientWidth, camiViewport.clientHeight, false);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      camiModel.appendChild(renderer.domElement);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+      scene.add(ambientLight);
+
+      const keyLight = new THREE.DirectionalLight(0xfff5d6, 1.8);
+      keyLight.position.set(4, 5, 4);
+      scene.add(keyLight);
+
+      const rimLight = new THREE.DirectionalLight(0x8ec8ff, 1.1);
+      rimLight.position.set(-4, 2, -2);
+      scene.add(rimLight);
+
+      const floor = new THREE.Mesh(
+        new THREE.CircleGeometry(3.2, 64),
+        new THREE.MeshStandardMaterial({ color: 0x111111, transparent: true, opacity: 0.28 })
+      );
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.y = -1.35;
+      scene.add(floor);
+
+      const loader = new GLTFLoader();
+      const modelCandidates = [
+        new URL('./camila.glb', window.location.href).href,
+        new URL('./public/models/camila.glb', window.location.href).href
+      ];
+
+      const renderModel = () => {
+        if (!renderer || !scene || !camera) return;
+
+        if (modelRoot) {
+          modelRoot.rotation.y = modelRotation + Math.sin(performance.now() * 0.0018) * 0.25;
+          modelRoot.position.y = -1.1 + Math.sin(performance.now() * 0.0024) * 0.12;
+        }
+
+        renderer.render(scene, camera);
+      };
+
+      const animate = () => {
+        renderModel();
+        animationFrameId = requestAnimationFrame(animate);
+      };
+
+      const resizeViewer = () => {
+        if (!camiViewport || !renderer || !camera) return;
+
+        const { clientWidth, clientHeight } = camiViewport;
+        camera.aspect = clientWidth / clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(clientWidth, clientHeight, false);
+      };
+
+      const loadModel = async (index = 0) => {
+        try {
+          const gltf = await loader.loadAsync(modelCandidates[index]);
+          modelRoot = gltf.scene;
+          modelRoot.scale.setScalar(1.15);
+          modelRoot.position.set(0, -1.1, 0);
+          modelRoot.rotation.y = modelRotation;
+          modelRoot.rotation.x = -0.18;
+          modelRoot.traverse((child) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+          scene.add(modelRoot);
+        } catch (error) {
+          if (index < modelCandidates.length - 1) {
+            loadModel(index + 1);
+            return;
+          }
+          console.warn('No se pudo cargar el modelo Camila GLB:', error);
+        }
+      };
+
+      camiViewport.addEventListener('pointerdown', (event) => {
+        dragActive = true;
+        startX = event.clientX;
+        camiViewport.setPointerCapture(event.pointerId);
+      });
+
+      camiViewport.addEventListener('pointermove', (event) => {
+        if (!dragActive || !modelRoot) return;
+
+        const delta = event.clientX - startX;
+        modelRotation += delta * 0.006;
+        startX = event.clientX;
+      });
+
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach((eventName) => {
+        camiViewport.addEventListener(eventName, () => {
+          dragActive = false;
+        });
+      });
+
+      powerSwitch.addEventListener('click', () => {
+        const isOn = powerSwitch.getAttribute('aria-checked') === 'true';
+        const next = !isOn;
+
+        powerSwitch.setAttribute('aria-checked', String(next));
+        powerSwitch.classList.toggle('is-on', next);
+        camiSection.classList.toggle('is-on', next);
+        powerSwitch.querySelector('.switch-label').textContent = next ? 'ON' : 'OFF';
+      });
+
+      window.addEventListener('resize', resizeViewer);
+      resizeViewer();
+      loadModel();
+      animate();
+    }
+  </script>
 </body>
 </html>
