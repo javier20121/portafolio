@@ -41,16 +41,6 @@
     <div class="cami-panel">
       <div class="cami-viewport" id="camiViewport" aria-label="Panel del cartel CAMI">
         <div id="camiModel" class="cami-model" aria-label="Modelo 3D de Camila"></div>
-        <div class="led-glow" aria-hidden="true"></div>
-      </div>
-
-      <div class="cami-controls">
-        <button id="powerSwitch" class="power-switch" type="button" role="switch" aria-checked="false" aria-label="Encender o apagar el cartel">
-          <span class="switch-track">
-            <span class="switch-thumb"></span>
-          </span>
-          <span class="switch-label">OFF</span>
-        </button>
       </div>
     </div>
   </section>
@@ -69,43 +59,25 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    const camiSection = document.querySelector('.section-cami');
     const camiViewport = document.getElementById('camiViewport');
     const camiModel = document.getElementById('camiModel');
-    const powerSwitch = document.getElementById('powerSwitch');
-    const ledGlow = document.querySelector('.led-glow');
 
-    if (camiViewport && camiModel && powerSwitch && camiSection && ledGlow) {
-      const ledPositions = [
-        { x: 17, y: 27, s: 10 }, { x: 24, y: 27, s: 10 }, { x: 31, y: 27, s: 10 },
-        { x: 40, y: 22, s: 11 }, { x: 50, y: 22, s: 11 }, { x: 60, y: 22, s: 11 },
-        { x: 72, y: 27, s: 10 }, { x: 80, y: 27, s: 10 }, { x: 88, y: 27, s: 10 },
-        { x: 18, y: 46, s: 11 }, { x: 30, y: 46, s: 11 }, { x: 43, y: 46, s: 11 },
-        { x: 57, y: 46, s: 11 }, { x: 72, y: 46, s: 11 }, { x: 84, y: 46, s: 11 },
-        { x: 22, y: 66, s: 11 }, { x: 36, y: 66, s: 11 }, { x: 50, y: 66, s: 11 },
-        { x: 64, y: 66, s: 11 }, { x: 79, y: 66, s: 11 }, { x: 86, y: 66, s: 11 },
-        { x: 16, y: 84, s: 10 }, { x: 32, y: 84, s: 10 }, { x: 49, y: 84, s: 10 },
-        { x: 66, y: 84, s: 10 }, { x: 82, y: 84, s: 10 }
-      ];
-
-      ledPositions.forEach((point) => {
-        const dot = document.createElement('span');
-        dot.className = 'led-dot';
-        dot.style.setProperty('--x', `${point.x}%`);
-        dot.style.setProperty('--y', `${point.y}%`);
-        dot.style.setProperty('--size', `${point.s}px`);
-        ledGlow.appendChild(dot);
-      });
-
+    if (camiViewport && camiModel) {
       let dragActive = false;
-      let startX = 0;
-      let modelRotation = 0.45;
+      const dragRaycaster = new THREE.Raycaster();
+      const dragPointer = new THREE.Vector2();
+      const dragPlane = new THREE.Plane();
+      const dragPoint = new THREE.Vector3();
+      const dragStartPoint = new THREE.Vector3();
+      const borderStartPosition = new THREE.Vector3();
+      const parentWorldInverse = new THREE.Matrix4();
       let modelRoot = null;
-      let animationFrameId = null;
+      let borderRoot = null;
+      let modelWorldWidth = 0;
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(30, camiViewport.clientWidth / camiViewport.clientHeight, 0.1, 100);
-      camera.position.set(0, 1.15, 5.6);
+      camera.position.set(0, 0, 5.6);
       camera.lookAt(0, 0, 0);
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
@@ -114,45 +86,49 @@
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       camiModel.appendChild(renderer.domElement);
 
-      const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
-      scene.add(ambientLight);
-
-      const keyLight = new THREE.DirectionalLight(0xfff5d6, 1.8);
-      keyLight.position.set(4, 5, 4);
-      scene.add(keyLight);
-
-      const rimLight = new THREE.DirectionalLight(0x8ec8ff, 1.1);
-      rimLight.position.set(-4, 2, -2);
-      scene.add(rimLight);
-
-      const floor = new THREE.Mesh(
-        new THREE.CircleGeometry(3.2, 64),
-        new THREE.MeshStandardMaterial({ color: 0x111111, transparent: true, opacity: 0.28 })
-      );
-      floor.rotation.x = -Math.PI / 2;
-      floor.position.y = -1.35;
-      scene.add(floor);
-
       const loader = new GLTFLoader();
       const modelCandidates = [
-        new URL('./camila.glb', window.location.href).href,
-        new URL('./public/models/camila.glb', window.location.href).href
+        new URL('./public/models/camila.glb', window.location.href).href,
+        new URL('./camila.glb', window.location.href).href
       ];
+      const borderModelUrl = new URL('./public/models/camilaborde.glb', window.location.href).href;
+      const acrylicTextureCanvas = document.createElement('canvas');
+      acrylicTextureCanvas.width = 128;
+      acrylicTextureCanvas.height = 128;
+      const acrylicTextureContext = acrylicTextureCanvas.getContext('2d');
+      const acrylicTextureData = acrylicTextureContext.createImageData(128, 128);
+      for (let y = 0; y < 128; y += 1) {
+        for (let x = 0; x < 128; x += 1) {
+          const index = (y * 128 + x) * 4;
+          const grain = (x * 17 + y * 31 + x * y * 7) % 8;
+          acrylicTextureData.data[index] = 244 + grain;
+          acrylicTextureData.data[index + 1] = 246 + grain;
+          acrylicTextureData.data[index + 2] = 249 + grain;
+          acrylicTextureData.data[index + 3] = 255;
+        }
+      }
+      acrylicTextureContext.putImageData(acrylicTextureData, 0, 0);
+      const acrylicTexture = new THREE.CanvasTexture(acrylicTextureCanvas);
+      acrylicTexture.colorSpace = THREE.SRGBColorSpace;
+      acrylicTexture.wrapS = THREE.RepeatWrapping;
+      acrylicTexture.wrapT = THREE.RepeatWrapping;
+      acrylicTexture.repeat.set(3, 2);
+
+      const applyAcrylicUv = (geometry) => {
+        const position = geometry.attributes.position;
+        const bounds = geometry.boundingBox || (geometry.computeBoundingBox(), geometry.boundingBox);
+        const size = bounds.getSize(new THREE.Vector3());
+        const uv = new Float32Array(position.count * 2);
+        for (let vertex = 0; vertex < position.count; vertex += 1) {
+          uv[vertex * 2] = (position.getX(vertex) - bounds.min.x) / (size.x || 1);
+          uv[vertex * 2 + 1] = (position.getZ(vertex) - bounds.min.z) / (size.z || 1);
+        }
+        geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+      };
 
       const renderModel = () => {
         if (!renderer || !scene || !camera) return;
-
-        if (modelRoot) {
-          modelRoot.rotation.y = modelRotation + Math.sin(performance.now() * 0.0018) * 0.25;
-          modelRoot.position.y = Math.sin(performance.now() * 0.0024) * 0.12;
-        }
-
         renderer.render(scene, camera);
-      };
-
-      const animate = () => {
-        renderModel();
-        animationFrameId = requestAnimationFrame(animate);
       };
 
       const resizeViewer = () => {
@@ -160,31 +136,53 @@
 
         const { clientWidth, clientHeight } = camiViewport;
         camera.aspect = clientWidth / clientHeight;
+        if (modelWorldWidth) {
+          const fov = THREE.MathUtils.degToRad(camera.fov);
+          const distance = modelWorldWidth / (2 * Math.tan(fov / 2) * camera.aspect * 0.84);
+          camera.position.set(0, 0, distance);
+        }
         camera.updateProjectionMatrix();
         renderer.setSize(clientWidth, clientHeight, false);
+        renderModel();
+      };
+
+      const updateDragRay = (event) => {
+        const bounds = camiViewport.getBoundingClientRect();
+        dragPointer.set(
+          ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
+          -((event.clientY - bounds.top) / bounds.height) * 2 + 1
+        );
+        dragRaycaster.setFromCamera(dragPointer, camera);
       };
 
       const loadModel = async (index = 0) => {
         try {
           const gltf = await loader.loadAsync(modelCandidates[index]);
+          let borderGltf = null;
+          try {
+            borderGltf = await loader.loadAsync(borderModelUrl);
+          } catch (error) {
+            console.warn('No se pudo cargar el frente acrílico Camiborde:', error);
+          }
           gltf.scene.traverse((child) => {
             if (child.isMesh) child.geometry.computeBoundingBox();
           });
           const modelBounds = new THREE.Box3().setFromObject(gltf.scene);
           const modelCenter = modelBounds.getCenter(new THREE.Vector3());
           const modelSize = modelBounds.getSize(new THREE.Vector3());
-          const modelScale = 2.5 / Math.max(modelSize.x, modelSize.y, modelSize.z);
+          const modelScale = 5 / Math.max(modelSize.x, modelSize.y, modelSize.z);
+          modelWorldWidth = modelSize.x * modelScale;
           modelRoot = new THREE.Group();
           gltf.scene.position.set(-modelCenter.x, -modelCenter.y, -modelCenter.z);
           modelRoot.add(gltf.scene);
           modelRoot.scale.setScalar(modelScale);
           modelRoot.position.set(0, 0, 0);
-          modelRoot.rotation.y = modelRotation;
-          modelRoot.rotation.x = -0.18;
+          modelRoot.rotation.z = THREE.MathUtils.degToRad(15);
           modelRoot.traverse((child) => {
             if (child.isMesh) {
               child.castShadow = true;
               child.receiveShadow = true;
+              child.frustumCulled = false;
               const materials = Array.isArray(child.material) ? child.material : [child.material];
               child.material = materials.map((material) => new THREE.MeshBasicMaterial({
                 color: 0xe8e4dc,
@@ -194,7 +192,33 @@
               if (child.material.length === 1) child.material = child.material[0];
             }
           });
+          if (borderGltf) {
+            borderGltf.scene.position.set(-modelCenter.x, -modelCenter.y, -modelCenter.z);
+            borderGltf.scene.traverse((child) => {
+              if (child.isMesh) {
+                applyAcrylicUv(child.geometry);
+                child.frustumCulled = false;
+                child.renderOrder = 2;
+                child.material = new THREE.MeshBasicMaterial({
+                  color: 0xf7f9fc,
+                  map: acrylicTexture,
+                  transparent: true,
+                  opacity: 0.48,
+                  side: THREE.DoubleSide,
+                  depthWrite: false,
+                  polygonOffset: true,
+                  polygonOffsetFactor: -1,
+                  polygonOffsetUnits: -1
+                });
+              }
+            });
+            borderRoot = new THREE.Group();
+            borderRoot.position.z = 0.06;
+            borderRoot.add(borderGltf.scene);
+            modelRoot.add(borderRoot);
+          }
           scene.add(modelRoot);
+          resizeViewer();
         } catch (error) {
           if (index < modelCandidates.length - 1) {
             loadModel(index + 1);
@@ -205,17 +229,28 @@
       };
 
       camiViewport.addEventListener('pointerdown', (event) => {
+        if (!borderRoot) return;
+
+        modelRoot.updateMatrixWorld(true);
+        borderRoot.getWorldPosition(borderStartPosition);
+        dragPlane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 0, 1), borderStartPosition);
+        updateDragRay(event);
+        if (!dragRaycaster.ray.intersectPlane(dragPlane, dragStartPoint)) return;
+
         dragActive = true;
-        startX = event.clientX;
         camiViewport.setPointerCapture(event.pointerId);
       });
 
       camiViewport.addEventListener('pointermove', (event) => {
-        if (!dragActive || !modelRoot) return;
+        if (!dragActive || !borderRoot) return;
 
-        const delta = event.clientX - startX;
-        modelRotation += delta * 0.006;
-        startX = event.clientX;
+        updateDragRay(event);
+        if (!dragRaycaster.ray.intersectPlane(dragPlane, dragPoint)) return;
+
+        dragPoint.sub(dragStartPoint).add(borderStartPosition);
+        parentWorldInverse.copy(borderRoot.parent.matrixWorld).invert();
+        borderRoot.position.copy(dragPoint.applyMatrix4(parentWorldInverse));
+        renderModel();
       });
 
       ['pointerup', 'pointerleave', 'pointercancel'].forEach((eventName) => {
@@ -224,20 +259,9 @@
         });
       });
 
-      powerSwitch.addEventListener('click', () => {
-        const isOn = powerSwitch.getAttribute('aria-checked') === 'true';
-        const next = !isOn;
-
-        powerSwitch.setAttribute('aria-checked', String(next));
-        powerSwitch.classList.toggle('is-on', next);
-        camiSection.classList.toggle('is-on', next);
-        powerSwitch.querySelector('.switch-label').textContent = next ? 'ON' : 'OFF';
-      });
-
       window.addEventListener('resize', resizeViewer);
       resizeViewer();
       loadModel();
-      animate();
     }
   </script>
 </body>
