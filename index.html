@@ -69,10 +69,10 @@
       const dragPlane = new THREE.Plane();
       const dragPoint = new THREE.Vector3();
       const dragStartPoint = new THREE.Vector3();
-      const borderStartPosition = new THREE.Vector3();
+      const signStartPosition = new THREE.Vector3();
       const parentWorldInverse = new THREE.Matrix4();
       let modelRoot = null;
-      let borderRoot = null;
+      let signRoot = null;
       let modelWorldWidth = 0;
 
       const scene = new THREE.Scene();
@@ -91,7 +91,8 @@
         new URL('./public/models/camila.glb', window.location.href).href,
         new URL('./camila.glb', window.location.href).href
       ];
-      const borderModelUrl = new URL('./public/models/camilaborde.glb', window.location.href).href;
+      const borderModelUrl = new URL('./public/models/camila%20borde.glb', window.location.href).href;
+      const frontModelUrl = new URL('./public/models/frente.glb', window.location.href).href;
       const acrylicTextureCanvas = document.createElement('canvas');
       acrylicTextureCanvas.width = 128;
       acrylicTextureCanvas.height = 128;
@@ -159,10 +160,16 @@
         try {
           const gltf = await loader.loadAsync(modelCandidates[index]);
           let borderGltf = null;
+          let frontGltf = null;
           try {
             borderGltf = await loader.loadAsync(borderModelUrl);
           } catch (error) {
-            console.warn('No se pudo cargar el frente acrílico Camiborde:', error);
+            console.warn('No se pudo cargar el borde del cartel:', error);
+          }
+          try {
+            frontGltf = await loader.loadAsync(frontModelUrl);
+          } catch (error) {
+            console.warn('No se pudo cargar el frente acrílico:', error);
           }
           gltf.scene.traverse((child) => {
             if (child.isMesh) child.geometry.computeBoundingBox();
@@ -192,9 +199,25 @@
               if (child.material.length === 1) child.material = child.material[0];
             }
           });
+          signRoot = new THREE.Group();
+          signRoot.position.z = 0.06;
           if (borderGltf) {
             borderGltf.scene.position.set(-modelCenter.x, -modelCenter.y, -modelCenter.z);
             borderGltf.scene.traverse((child) => {
+              if (child.isMesh) {
+                child.frustumCulled = false;
+                child.renderOrder = 1;
+                child.material = new THREE.MeshBasicMaterial({
+                  color: 0xe8e4dc,
+                  side: THREE.DoubleSide
+                });
+              }
+            });
+            signRoot.add(borderGltf.scene);
+          }
+          if (frontGltf) {
+            frontGltf.scene.position.set(-modelCenter.x, -modelCenter.y, -modelCenter.z);
+            frontGltf.scene.traverse((child) => {
               if (child.isMesh) {
                 applyAcrylicUv(child.geometry);
                 child.frustumCulled = false;
@@ -203,7 +226,7 @@
                   color: 0xf7f9fc,
                   map: acrylicTexture,
                   transparent: true,
-                  opacity: 0.48,
+                  opacity: 0.62,
                   side: THREE.DoubleSide,
                   depthWrite: false,
                   polygonOffset: true,
@@ -212,11 +235,9 @@
                 });
               }
             });
-            borderRoot = new THREE.Group();
-            borderRoot.position.z = 0.06;
-            borderRoot.add(borderGltf.scene);
-            modelRoot.add(borderRoot);
+            signRoot.add(frontGltf.scene);
           }
+          modelRoot.add(signRoot);
           scene.add(modelRoot);
           resizeViewer();
         } catch (error) {
@@ -229,11 +250,11 @@
       };
 
       camiViewport.addEventListener('pointerdown', (event) => {
-        if (!borderRoot) return;
+        if (!signRoot) return;
 
         modelRoot.updateMatrixWorld(true);
-        borderRoot.getWorldPosition(borderStartPosition);
-        dragPlane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 0, 1), borderStartPosition);
+        signRoot.getWorldPosition(signStartPosition);
+        dragPlane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 0, 1), signStartPosition);
         updateDragRay(event);
         if (!dragRaycaster.ray.intersectPlane(dragPlane, dragStartPoint)) return;
 
@@ -242,14 +263,14 @@
       });
 
       camiViewport.addEventListener('pointermove', (event) => {
-        if (!dragActive || !borderRoot) return;
+        if (!dragActive || !signRoot) return;
 
         updateDragRay(event);
         if (!dragRaycaster.ray.intersectPlane(dragPlane, dragPoint)) return;
 
-        dragPoint.sub(dragStartPoint).add(borderStartPosition);
-        parentWorldInverse.copy(borderRoot.parent.matrixWorld).invert();
-        borderRoot.position.copy(dragPoint.applyMatrix4(parentWorldInverse));
+        dragPoint.sub(dragStartPoint).add(signStartPosition);
+        parentWorldInverse.copy(signRoot.parent.matrixWorld).invert();
+        signRoot.position.copy(dragPoint.applyMatrix4(parentWorldInverse));
         renderModel();
       });
 
