@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import type { Range } from './geometry'
+import { letterOf, type Range } from './geometry'
 
 export const LETTER_COUNT_MAX = 8
 
@@ -12,7 +12,8 @@ float vnoise(vec2 p){
 }
 `
 
-const WARM = 'vec3(1.0, 0.93, 0.82)'
+const WARM = 'vec3(1.0, 0.78, 0.86)'
+const LILAC = 'vec3(0.74, 0.52, 0.94)'
 
 export interface Shared {
   /** Límites del cartel (XY) para normalizar coordenadas. */
@@ -45,10 +46,10 @@ export function createFondoMaterial(s: Shared) {
     uSize: u(s.boundsSize),
   }
   const mat = new THREE.MeshStandardMaterial({
-    color: 0xeeebe4,
-    roughness: 0.62,
-    metalness: 0.0,
-    envMapIntensity: 0.8,
+    color: 0xc9c4bb,
+    roughness: 0.7,
+    metalness: 0.02,
+    envMapIntensity: 0.65,
   })
   mat.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, uniforms)
@@ -73,6 +74,13 @@ float eF = uFondo - tN;
 if (eF < 0.0) discard;
 float bandF = (1.0 - smoothstep(0.0, 0.05, eF)) * (1.0 - smoothstep(0.9, 1.0, uFondo));`,
       )
+  .replace(
+    '#include <color_fragment>',
+    `#include <color_fragment>
+float foamGrain = vnoise(vLocal.xy * 34.0);
+float foamSpeckle = vnoise(vLocal.xy * 79.0);
+diffuseColor.rgb *= 0.978 + foamGrain * 0.035 + foamSpeckle * 0.018;`,
+  )
       .replace(
         '#include <emissivemap_fragment>',
         `#include <emissivemap_fragment>
@@ -88,9 +96,9 @@ export function createBordeMaterial(s: Shared) {
     uGlow: u(0),
   }
   const mat = new THREE.MeshStandardMaterial({
-    color: 0xe2dfd8,
-    roughness: 0.5,
-    metalness: 0.0,
+    color: 0x7c5bd9,
+    roughness: 0.56,
+    metalness: 0.08,
     side: THREE.DoubleSide,
     envMapIntensity: 0.9,
   })
@@ -102,20 +110,21 @@ export function createBordeMaterial(s: Shared) {
         `#include <common>
 attribute float aT; attribute float aH; attribute float aLetter;
 uniform float uBorde[${LETTER_COUNT_MAX}];
-varying float vD; varying float vH;`,
+varying float vD; varying float vH; varying vec3 vLocal;`,
       )
       .replace(
         '#include <begin_vertex>',
         `#include <begin_vertex>
 vD = uBorde[int(aLetter + 0.5)] * 1.06 - aT;
-vH = aH;`,
+vH = aH; vLocal = position;`,
       )
     sh.fragmentShader = sh.fragmentShader
       .replace(
         '#include <common>',
         `#include <common>
 uniform float uGlow;
-varying float vD; varying float vH;`,
+varying float vD; varying float vH; varying vec3 vLocal;
+${NOISE}`,
       )
       .replace(
         '#include <clipping_planes_fragment>',
@@ -126,18 +135,23 @@ if (vH > riseB) discard;
 float frontier = (1.0 - smoothstep(0.0, 0.12, riseB - vH)) * (1.0 - smoothstep(0.75, 1.0, riseB));`,
       )
       .replace(
+        '#include <color_fragment>',
+        `#include <color_fragment>
+    float foamGrain = vnoise(vLocal.xy * 34.0);
+    float foamSpeckle = vnoise(vLocal.xy * 79.0);
+    diffuseColor.rgb *= 0.982 + foamGrain * 0.032 + foamSpeckle * 0.02;`,
+      )
+      .replace(
         '#include <emissivemap_fragment>',
         `#include <emissivemap_fragment>
-totalEmissiveRadiance += ${WARM} * (frontier * 0.55 + uGlow * 0.12);`,
+    totalEmissiveRadiance += ${LILAC} * (frontier * 0.28 + uGlow * 0.85);`,
       )
   }
   return { material: mat, uniforms }
 }
 
 /**
- * Acrílico blanco opal. Deja pasar la luz de los módulos (que se ven apenas
- * como manchas difusas) y suma un resplandor propio a partir de un mapa de luz
- * horneado con la posición de cada LED.
+ * Frente opal perlado: difunde los LED y cambia de cálido a lila en los bordes.
  */
 export function createFrenteMaterial(s: Shared, lightMap: THREE.Texture) {
   const uniforms = {
@@ -147,18 +161,18 @@ export function createFrenteMaterial(s: Shared, lightMap: THREE.Texture) {
     uLightMap: u(lightMap),
     uMin: u(s.boundsMin),
     uSize: u(s.boundsSize),
-    uGain: u(1.0),
+    uGain: u(0.9),
   }
   const mat = new THREE.MeshPhysicalMaterial({
-    color: 0xece9e3,
-    roughness: 0.46,
+    color: 0xf0ece8,
+    roughness: 0.58,
     metalness: 0.0,
-    clearcoat: 0.35,
-    clearcoatRoughness: 0.4,
+    clearcoat: 0.18,
+    clearcoatRoughness: 0.52,
     transparent: true,
-    opacity: 0.965,
-    depthWrite: false,
-    envMapIntensity: 0.7,
+    opacity: 1,
+    depthWrite: true,
+    envMapIntensity: 0.82,
   })
   mat.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, uniforms)
@@ -172,6 +186,7 @@ export function createFrenteMaterial(s: Shared, lightMap: THREE.Texture) {
 uniform float uFront; uniform float uLetter[${LETTER_COUNT_MAX}]; uniform float uEdges[${LETTER_COUNT_MAX}];
 uniform sampler2D uLightMap; uniform vec2 uMin; uniform vec2 uSize; uniform float uGain;
 varying vec2 vSignXY;
+${NOISE}
 float letterLight(float x){
   int i = 0;
   for (int k = 0; k < ${LETTER_COUNT_MAX - 1}; k++) { if (x > uEdges[k]) i = k + 1; }
@@ -183,11 +198,20 @@ float letterLight(float x){
         `#include <alphatest_fragment>
 diffuseColor.a *= smoothstep(0.0, 1.0, uFront);`,
       )
+  .replace(
+    '#include <color_fragment>',
+    `#include <color_fragment>
+float pearlGrain = vnoise(vSignXY * 38.0);
+float pearlSpeckle = vnoise(vSignXY * 83.0);
+diffuseColor.rgb *= 0.988 + pearlGrain * 0.018 + pearlSpeckle * 0.012;`,
+  )
       .replace(
         '#include <emissivemap_fragment>',
         `#include <emissivemap_fragment>
 float lm = texture2D(uLightMap, (vSignXY - uMin) / uSize).r;
-totalEmissiveRadiance += ${WARM} * (0.10 + lm * 0.95) * letterLight(vSignXY.x) * uGain;`,
+float warmth = smoothstep(0.12, 0.72, lm);
+vec3 ledGlow = mix(${LILAC}, ${WARM}, warmth);
+totalEmissiveRadiance += ledGlow * (0.35 + lm * 2.2) * letterLight(vSignXY.x) * uGain;`,
       )
   }
   return { material: mat, uniforms }
@@ -198,7 +222,7 @@ export function createLedMaterials(count: number): THREE.MeshStandardMaterial[] 
   return Array.from({ length: count }, () => {
     const m = new THREE.MeshStandardMaterial({
       color: 0xd9d6cf,
-      roughness: 0.55,
+      roughness: 0.48,
       emissive: new THREE.Color(1.0, 0.93, 0.82),
       emissiveIntensity: 0,
     })
@@ -223,13 +247,13 @@ export function bakeLightMap(
   ctx.fillStyle = '#000'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   ctx.globalCompositeOperation = 'lighter'
-  const radius = 1.7 * ppu
+  const radius = 2.6 * ppu
   for (const p of points) {
     const cx = (p.x - min.x) * ppu
     const cy = canvas.height - (p.y - min.y) * ppu
     const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius)
-    g.addColorStop(0, 'rgba(255,255,255,0.26)')
-    g.addColorStop(0.4, 'rgba(255,255,255,0.11)')
+    g.addColorStop(0, 'rgba(255,255,255,0.52)')
+    g.addColorStop(0.38, 'rgba(255,255,255,0.22)')
     g.addColorStop(1, 'rgba(255,255,255,0)')
     ctx.fillStyle = g
     ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2)
@@ -241,4 +265,64 @@ export function bakeLightMap(
   tex.generateMipmaps = false
   tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping
   return tex
+}
+
+export function bakeLetterShadows(
+  front: THREE.Mesh,
+  ranges: readonly Range[],
+  min: THREE.Vector2,
+  size: THREE.Vector2,
+): THREE.CanvasTexture[] {
+  const geometry = front.geometry
+  const position = geometry.getAttribute('position')
+  const index = geometry.getIndex()
+  const pixelsPerUnit = 18
+  const textures = ranges.map(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.ceil(size.x * pixelsPerUnit)
+    canvas.height = Math.ceil(size.y * pixelsPerUnit)
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.colorSpace = THREE.SRGBColorSpace
+    texture.anisotropy = 4
+    return { canvas, context: canvas.getContext('2d')!, texture }
+  })
+
+  front.updateWorldMatrix(true, false)
+  for (const { context } of textures) {
+    context.fillStyle = 'rgba(24, 17, 32, 0.16)'
+    context.shadowColor = 'rgba(18, 12, 28, 0.46)'
+    context.shadowBlur = 16
+    context.shadowOffsetX = 7
+    context.shadowOffsetY = 9
+    context.beginPath()
+  }
+
+  const vertexCount = index ? index.count : position.count
+  for (let i = 0; i < vertexCount; i += 3) {
+    const ia = index ? index.getX(i) : i
+    const ib = index ? index.getX(i + 1) : i + 1
+    const ic = index ? index.getX(i + 2) : i + 2
+    const centerX = (position.getX(ia) + position.getX(ib) + position.getX(ic)) / 3
+    const letter = letterOf(centerX, ranges)
+    const ctx = textures[letter]?.context
+    if (!ctx) continue
+
+    ctx.moveTo(
+      (front.localToWorld(new THREE.Vector3(position.getX(ia), position.getY(ia), position.getZ(ia))).x - min.x) * pixelsPerUnit,
+      ctx.canvas.height - (front.localToWorld(new THREE.Vector3(position.getX(ia), position.getY(ia), position.getZ(ia))).y - min.y) * pixelsPerUnit,
+    )
+    for (const vertex of [ib, ic]) {
+      const world = front.localToWorld(
+        new THREE.Vector3(position.getX(vertex), position.getY(vertex), position.getZ(vertex)),
+      )
+      ctx.lineTo((world.x - min.x) * pixelsPerUnit, ctx.canvas.height - (world.y - min.y) * pixelsPerUnit)
+    }
+    ctx.closePath()
+  }
+
+  for (const { context, texture } of textures) {
+    context.fill()
+    texture.needsUpdate = true
+  }
+  return textures.map(({ texture }) => texture)
 }

@@ -11,6 +11,7 @@ import { collectLeds, letterRanges, prepareBorder, type Led } from './geometry'
 import {
   LETTER_COUNT_MAX,
   bakeLightMap,
+  bakeLetterShadows,
   createBordeMaterial,
   createFondoMaterial,
   createFrenteMaterial,
@@ -37,10 +38,10 @@ export interface CartelOptions {
   signal?: AbortSignal
 }
 
-/** Color de la pared. Calibrado para que, tras el tone mapping, se vea como #1b1c1e. */
-const WALL = 0x343538
+/** Color de la pared. Ajustado para mantener la profundidad dark y evitar sobreexposición. */
+const WALL = 0x1d1d22
 /** Intensidad de emisión de los módulos LED cuando están al 100 %. */
-const LED_GAIN = 3
+const LED_GAIN = 5.2
 /** Progreso del timeline (0..1) a partir del cual se encienden las luces. */
 const LIGHTS_AT = 0.895
 
@@ -85,6 +86,8 @@ export class CartelScroll {
   private readonly borde: THREE.Mesh
   private readonly leds: Led[]
   private readonly ledMats: THREE.MeshStandardMaterial[]
+  private readonly shadowMaps: THREE.CanvasTexture[]
+  private readonly shadowMats: THREE.MeshBasicMaterial[]
   private readonly frontZ: number
   private readonly fondoU: { uFondo: { value: number } }
   private readonly frenteU: { uFront: { value: number } }
@@ -140,6 +143,17 @@ export class CartelScroll {
 
     // --- Materiales --------------------------------------------------------
     this.leds = collectLeds(ledGroup, ranges)
+    this.shadowMaps = bakeLetterShadows(frente, ranges, boundsMin, boundsSize)
+    this.shadowMats = this.shadowMaps.map((map) => new THREE.MeshBasicMaterial({
+      color: 0x211c27,
+      map,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+    }))
     this.lightMap = bakeLightMap(
       this.leds.map((l) => l.world),
       boundsMin,
@@ -176,10 +190,18 @@ export class CartelScroll {
     // --- Escena, luces, render --------------------------------------------
     this.scene.background = new THREE.Color(WALL)
     this.scene.add(model)
+    const wallZ = whole.min.z - 0.25
+    this.shadowMats.forEach((material) => {
+      const shadow = new THREE.Mesh(new THREE.PlaneGeometry(boundsSize.x, boundsSize.y), material)
+      shadow.position.set(boundsMin.x + boundsSize.x / 2, boundsMin.y + boundsSize.y / 2, wallZ)
+      shadow.renderOrder = 1
+      this.scene.add(shadow)
+    })
 
     this.renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' })
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
-    this.renderer.toneMappingExposure = 1
+    this.renderer.toneMappingExposure = 0.48
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace
     const canvas = this.renderer.domElement
     canvas.classList.add('cartel__canvas')
     canvas.setAttribute('role', 'img')
@@ -188,10 +210,10 @@ export class CartelScroll {
 
     const pmrem = new THREE.PMREMGenerator(this.renderer)
     this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
-    this.scene.environmentIntensity = 1.05
+    this.scene.environmentIntensity = 0.44
     pmrem.dispose()
 
-    const key = new THREE.DirectionalLight(0xfff2e2, 1.5)
+    const key = new THREE.DirectionalLight(0xfff2e2, 0.96)
     key.position.set(this.center.x - 26, this.center.y + 40, this.center.z + 70)
     key.target.position.copy(this.center)
     this.scene.add(key, key.target)
@@ -199,7 +221,7 @@ export class CartelScroll {
     const target = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 })
     this.composer = new EffectComposer(this.renderer, target)
     this.composer.addPass(new RenderPass(this.scene, this.camera))
-    this.bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0, 0.42, 1.0)
+    this.bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.75, 0.28, 0.72)
     this.composer.addPass(this.bloom)
     this.composer.addPass(new OutputPass())
 
@@ -222,10 +244,9 @@ export class CartelScroll {
     for (let k = 0; k < this.nLetters; k++)
       tl.to(S.borde, { [k]: 1, duration: 1.2, ease: 'power1.inOut' } as gsap.TweenVars, 3.1 + k * 0.5)
     tl.to(S, { front: 1, duration: 2.0, ease: 'power2.inOut' }, 6.5)
-    // Mientras se arman base y bordes la cámara queda de costado (así se ve la
-    // profundidad); recién con el frente vuelve a mirar de frente.
-tl.to(S.cam, { yaw: -0.36, pitch: 0.12, k: 0.98, tx: 0, duration: 6.6 }, 0)
-tl.to(S.cam, { yaw: 0, pitch: 0, k: 1, tx: 0, duration: 2.4, ease: 'power2.inOut' }, 6.6)
+      // El cierre conserva un giro leve para que el PVC siga mostrando espesor.
+      tl.to(S.cam, { yaw: -0.36, pitch: 0.12, k: 0.98, tx: 0, duration: 6.6 }, 0)
+      tl.to(S.cam, { yaw: 0.105, pitch: 0, k: 1, tx: 0, duration: 2.4, ease: 'power2.inOut' }, 6.6)
     tl.to({}, { duration: 0.1 }, 9.9)
     this.tl = tl
 
@@ -238,7 +259,7 @@ tl.to(S.cam, { yaw: 0, pitch: 0, k: 1, tx: 0, duration: 2.4, ease: 'power2.inOut
         start: 'top top',
         end: () => `+=${Math.round(window.innerHeight * (o.scrollLength ?? 4.5))}`,
         pin: true,
-        scrub: 0.6,
+        scrub: 1.6,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         animation: tl,
@@ -285,6 +306,7 @@ tl.to(S.cam, { yaw: 0, pitch: 0, k: 1, tx: 0, duration: 2.4, ease: 'power2.inOut
       ;(Array.isArray(m.material) ? m.material : [m.material]).forEach((x) => x.dispose())
     })
     this.lightMap.dispose()
+    this.shadowMaps.forEach((map) => map.dispose())
     this.scene.environment?.dispose()
     this.composer.dispose()
     this.renderer.dispose()
@@ -364,14 +386,19 @@ tl.to(S.cam, { yaw: 0, pitch: 0, k: 1, tx: 0, duration: 2.4, ease: 'power2.inOut
     // Módulos LED: aparecen de izquierda a derecha, escalando desde su centro.
     for (const led of this.leds) {
       const t = clamp01((s.leds - led.order * 0.72) / 0.28)
-      led.mesh.visible = t > 0
-      led.mesh.scale.setScalar(Math.max(easeOutCubic(t), 0.0001))
+      const covered = THREE.MathUtils.smoothstep(s.front, 0.78, 0.96)
+      const scale = easeOutCubic(t) * (1 - covered)
+      led.mesh.visible = scale > 0.001
+      led.mesh.scale.setScalar(Math.max(scale, 0.0001))
     }
 
-    // Frente: se acerca desde adelante mientras se vuelve opaco.
+    // El frente parte detrás de los LED y avanza hasta cubrirlos.
     this.frente.visible = s.front > 0.001
-    this.frente.position.z = this.frontZ + (1 - easeOutCubic(s.front)) * 4.5
+    this.frente.position.z = this.frontZ - (1 - easeOutCubic(s.front)) * 4.5
     this.frenteU.uFront.value = s.front
+    this.shadowMats.forEach((material, k) => {
+      material.opacity = (s.borde[k] ?? 0) * 0.42
+    })
 
     // Luz
     let lit = 0
@@ -381,7 +408,7 @@ tl.to(S.cam, { yaw: 0, pitch: 0, k: 1, tx: 0, duration: 2.4, ease: 'power2.inOut
     }
     const light = clamp01(lit / n)
     this.bordeU.uGlow.value = light
-    this.bloom.strength = 0.4 * light
+    this.bloom.strength = 0.75 * light
 
     // Cámara
     this.applyCamera()
@@ -437,9 +464,9 @@ tl.to(S.cam, { yaw: 0, pitch: 0, k: 1, tx: 0, duration: 2.4, ease: 'power2.inOut
     this.camera.updateProjectionMatrix()
 
     const tan = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2))
-    const margin = this.camera.aspect > 1.3 ? 1.34 : 1.12
+    const margin = this.camera.aspect > 1.3 ? 1.10 : 0.92
     const byWidth = (this.size.x * margin) / 2 / (tan * this.camera.aspect)
-    const byHeight = (this.size.y * 3) / 2 / tan
+    const byHeight = (this.size.y * 2.5) / 2 / tan
     this.fit = Math.max(byWidth, byHeight)
   }
 

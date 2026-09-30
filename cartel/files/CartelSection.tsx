@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { CartelScroll } from './engine'
-import { STAGES } from './stages'
 import './cartel.css'
 
 export interface CartelSectionProps {
@@ -15,7 +14,6 @@ export interface CartelSectionProps {
 export default function CartelSection({ src, scrollLength = 4.5, onReady }: CartelSectionProps) {
   const rootRef = useRef<HTMLElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
-  const [stage, setStage] = useState(0)
   const [failed, setFailed] = useState(false)
 
   useEffect(() => {
@@ -26,14 +24,15 @@ export default function CartelSection({ src, scrollLength = 4.5, onReady }: Cart
     const ctrl = new AbortController()
     let engine: CartelScroll | undefined
 
-    CartelScroll.create({ root, stage: host, source: src, scrollLength, onStage: setStage, signal: ctrl.signal })
+    CartelScroll.create({ root, stage: host, source: src, scrollLength, signal: ctrl.signal })
       .then((e) => {
         engine = e
         onReady?.(e)
       })
       .catch((err: unknown) => {
         if (err instanceof DOMException && err.name === 'AbortError') return
-        console.error(err)
+        console.error('[CartelSection] Error al iniciar:', err)
+        if (err instanceof Error) console.error('[CartelSection] Stack:', err.stack)
         setFailed(true)
       })
 
@@ -44,8 +43,6 @@ export default function CartelSection({ src, scrollLength = 4.5, onReady }: Cart
     // onReady no debe reiniciar la escena.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src, scrollLength])
-
-  const current = STAGES[stage]
 
   return (
     <div className="cartel-wrap">
@@ -63,24 +60,6 @@ export default function CartelSection({ src, scrollLength = 4.5, onReady }: Cart
           <p className="cartel__fallback">No se pudo iniciar el visor 3D en este dispositivo.</p>
         )}
 
-        <p className="cartel__hint">Desplaza para armar el cartel</p>
-
-        <div className="cartel__hud">
-          <div aria-live="polite">
-            <p className="cartel__caption" key={current.id}>
-              <strong>{current.title}</strong>
-              <span>{current.text}</span>
-            </p>
-          </div>
-          <ol className="cartel__rail" aria-label="Etapas de fabricación">
-            {STAGES.map((s, i) => (
-              <li key={s.id} data-active={i === stage} aria-current={i === stage ? 'step' : undefined}>
-                <i aria-hidden="true" />
-                <span>{s.label}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
       </section>
     </div>
   )

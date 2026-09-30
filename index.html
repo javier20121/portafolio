@@ -12,6 +12,18 @@
   <body>
     <main>
       <div id="stage">
+        <div id="cursor" aria-hidden="true">
+          <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <circle cx="16" cy="16" r="2.3" fill="currentColor" />
+          </svg>
+        </div>
+
+        <div id="menu" aria-label="Menú del portafolio" aria-hidden="true">
+          <button class="menu-item enabled" type="button">Toque único</button>
+          <button class="menu-item" type="button">Contacto</button>
+        </div>
+
         <div id="word" aria-label="Portafolio">
           <span>P</span><span>O</span><span>R</span><span>T</span><span>A</span><span>F</span><span>O</span><span>L</span><span>I</span><span>O</span>
         </div>

@@ -8,7 +8,7 @@
   --ink: #ece8e1;
   --ink-dim: #a29e96;
   --hair: rgba(236, 232, 225, 0.22);
-  --warm: 255, 226, 186;
+  --warm: 190, 150, 255;
   --pad: clamp(20px, 4vw, 48px);
 
   position: relative;
@@ -49,8 +49,8 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(56% 34% at 50% 44%, rgba(var(--warm), 0.3), transparent 72%);
-  opacity: calc(var(--glow, 0) * 0.35);
+  background: radial-gradient(62% 42% at 50% 44%, rgba(var(--warm), 0.62), transparent 78%);
+  opacity: calc(var(--glow, 0) * 0.7);
   mix-blend-mode: screen;
 }
 

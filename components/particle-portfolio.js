@@ -1,93 +1,35 @@
 import { gsap } from 'gsap';
 
-const stage = document.getElementById('stage');
 const wordEl = document.getElementById('word');
 const letters = wordEl ? wordEl.querySelectorAll('span') : [];
-const letterA = document.getElementById('letterA');
 const canvas = document.getElementById('particles');
-const cursor = document.getElementById('cursor');
-const menu = document.getElementById('menu');
-const toqueUnico = document.getElementById('toqueUnico');
-const replayBtn = document.getElementById('replay');
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let animationUnlocked = false;
-let introTimeline = null;
-let outroTimeline = null;
-let introGeneration = 0;
 
-function rand(max = 1, min = 0, dec = 0) {
-  return +(min + Math.random() * (max - min)).toFixed(dec);
-}
-
-function center(el) {
-  const rect = el.getBoundingClientRect();
-  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-}
-
-function ripple(x, y) {
-  const r = document.createElement('div');
-  r.className = 'ripple';
-  r.style.left = x + 'px';
-  r.style.top = y + 'px';
-  stage.appendChild(r);
-  gsap.to(r, { scale: 3.2, opacity: 0, duration: 0.5, ease: 'power2.out', onComplete: () => r.remove() });
-}
-
-function resetState() {
-  introGeneration += 1;
-  introTimeline?.kill();
-  outroTimeline?.kill();
-  introTimeline = null;
-  outroTimeline = null;
-  animationUnlocked = false;
-  gsap.killTweensOf([cursor, menu, letters, wordEl, canvas]);
-  gsap.set(letters, { opacity: 0, y: 14 });
-  gsap.set(wordEl, { opacity: 1 });
-  if (wordEl) wordEl.style.visibility = 'visible';
-  gsap.set(canvas, { opacity: 0 });
-  gsap.set(cursor, { opacity: 0, x: window.innerWidth * 0.72, y: window.innerHeight * 0.86 });
-  gsap.set(menu, { opacity: 0, scale: 0.85, x: 0, y: 0 });
-  if (toqueUnico) {
-    toqueUnico.classList.remove('hovered', 'pressed');
-  }
-  window.dispatchEvent(new Event('portfolio:replay'));
-}
-
-function startAnimation(generation = introGeneration) {
-  if (!canvas || animationUnlocked || generation !== introGeneration) return;
-
-  introTimeline?.kill();
-  introTimeline = null;
+function startAnimation() {
+  if (!canvas || animationUnlocked) return;
   animationUnlocked = true;
 
-  outroTimeline = gsap.timeline();
-  outroTimeline
-    .to(menu, { opacity: 0, scale: 0.9, duration: 0.3, ease: 'power2.inOut' })
-    .to(cursor, { opacity: 0, duration: 0.25 }, 0)
-    .to(wordEl, {
-      opacity: 0,
-      scale: 1.03,
-      y: -18,
-      duration: 0.7,
-      ease: 'power2.inOut',
-      onStart: () => {
-        gsap.to(canvas, { opacity: 1, duration: 0.45, ease: 'power2.out' });
-      }
-    }, 0.05)
-    .call(() => {
-      if (wordEl && generation === introGeneration) {
-        wordEl.style.visibility = 'hidden';
-      }
-    }, [], 0.7);
-
-  if (toqueUnico) {
-    toqueUnico.classList.add('pressed');
-  }
+  gsap.to(wordEl, {
+    opacity: 0,
+    scale: 1.03,
+    y: -18,
+    duration: 0.7,
+    ease: 'power2.inOut',
+    onStart: () => gsap.to(canvas, { opacity: 1, duration: 0.45, ease: 'power2.out' }),
+    onComplete: () => { wordEl.style.visibility = 'hidden'; },
+  });
 }
 
 function playIntro() {
+  if (!canvas || !wordEl) return;
+
+  animationUnlocked = false;
+  gsap.set(letters, { opacity: 0, y: 14 });
+  gsap.set(wordEl, { opacity: 1, y: 0, visibility: 'visible' });
+  gsap.set(canvas, { opacity: 0 });
+
   if (reduced) {
-    resetState();
     animationUnlocked = true;
     gsap.set(letters, { opacity: 1, y: 0 });
     gsap.set(canvas, { opacity: 1 });
@@ -95,60 +37,131 @@ function playIntro() {
     return;
   }
 
-  resetState();
-  const generation = introGeneration;
+  gsap.to(letters, {
+    opacity: 1,
+    y: 0,
+    duration: 0.6,
+    stagger: 0.04,
+    ease: 'power2.out',
+    onComplete: () => gsap.delayedCall(0.45, startAnimation),
+  });
+}
 
-  introTimeline = gsap.timeline();
+const stage = document.getElementById('stage');
+const cursor = document.getElementById('cursor');
+const menu = document.getElementById('menu');
+const menuItem = menu?.querySelector('.menu-item.enabled');
 
-  introTimeline.to(letters, { opacity: 1, y: 0, duration: 0.6, stagger: 0.04, ease: 'power2.out' })
-    .to(cursor, { opacity: 1, duration: 0.3 }, '+=0.3')
-    .add(() => {
-      if (generation !== introGeneration) return;
-      const c = center(letterA);
-      gsap.to(cursor, {
-        x: c.x - 4,
-        y: c.y - 20,
-        duration: 1,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          if (generation !== introGeneration) return;
-          ripple(c.x, c.y);
-          gsap.to(cursor, { scale: 0.82, duration: 0.08, yoyo: true, repeat: 1 });
-        }
-      });
-    })
-    .to({}, { duration: 1.3 })
-    .add(() => {
-      if (generation !== introGeneration) return;
-      const r = letterA.getBoundingClientRect();
-      gsap.set(menu, { x: r.right + 14, y: r.bottom + 10 });
-      gsap.to(menu, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(1.6)' });
-    })
-    .to({}, { duration: 0.5 })
-    .add(() => {
-      if (generation !== introGeneration) return;
-      const t = center(toqueUnico);
-      gsap.to(cursor, {
-        x: t.x - 4,
-        y: t.y - 6,
-        duration: 0.7,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          if (generation === introGeneration && toqueUnico) toqueUnico.classList.add('hovered');
-        }
-      });
-    })
-    .to({}, { duration: 0.9 })
-    .add(() => {
-      const t = center(toqueUnico);
-      ripple(t.x - 4, t.y - 6);
-      if (toqueUnico) toqueUnico.classList.add('pressed');
-      gsap.to(cursor, { scale: 0.82, duration: 0.08, yoyo: true, repeat: 1 });
-    })
-    .to({}, { duration: 0.25 })
-    .call(() => {
-      startAnimation(generation);
-    });
+function showRipple(x, y) {
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple';
+  ripple.style.left = `${x}px`;
+  ripple.style.top = `${y}px`;
+  stage?.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 650);
+}
+
+function spawnBubble(x, y) {
+  const bubble = document.createElement('span');
+  bubble.className = 'bubble';
+  bubble.style.left = `${x}px`;
+  bubble.style.top = `${y}px`;
+  bubble.style.setProperty('--size', `${12 + Math.random() * 24}px`);
+  bubble.style.setProperty('--dx', `${(Math.random() - 0.5) * 80}px`);
+  bubble.style.setProperty('--dy', `${-30 - Math.random() * 50}px`);
+  stage?.appendChild(bubble);
+  setTimeout(() => bubble.remove(), 900);
+}
+
+function setCursorPosition(x, y) {
+  if (!cursor) return;
+  cursor.style.left = `${x}px`;
+  cursor.style.top = `${y}px`;
+}
+
+function showMenu(x, y) {
+  if (!menu) return;
+  menu.style.left = `${x}px`;
+  menu.style.top = `${y + 12}px`;
+  menu.classList.add('visible');
+  menu.setAttribute('aria-hidden', 'false');
+}
+
+function hideMenu() {
+  if (!menu) return;
+  menu.classList.remove('visible');
+  menu.setAttribute('aria-hidden', 'true');
+}
+
+if (stage && cursor) {
+  const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2, targetX: window.innerWidth / 2, targetY: window.innerHeight / 2 };
+
+  const updateCursor = (event) => {
+    const rect = stage.getBoundingClientRect();
+    pointer.targetX = event.clientX - rect.left;
+    pointer.targetY = event.clientY - rect.top;
+    cursor.classList.add('visible');
+    setCursorPosition(pointer.targetX, pointer.targetY);
+  };
+
+  window.addEventListener('pointermove', (event) => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    updateCursor(event);
+  });
+
+  window.addEventListener('pointerdown', (event) => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    cursor.classList.add('pressed');
+    showRipple(event.clientX - stage.getBoundingClientRect().left, event.clientY - stage.getBoundingClientRect().top);
+    setTimeout(() => cursor.classList.remove('pressed'), 120);
+  });
+
+  window.addEventListener('pointerup', () => cursor.classList.remove('pressed'));
+
+  window.addEventListener('pointerleave', () => cursor.classList.remove('visible'));
+
+  stage.addEventListener('click', (event) => {
+    const rect = stage.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const wordRect = wordEl?.getBoundingClientRect();
+    const inWord = wordRect && event.clientX >= wordRect.left && event.clientX <= wordRect.right && event.clientY >= wordRect.top && event.clientY <= wordRect.bottom;
+
+    if (inWord || event.target === canvas || event.target === stage) {
+      event.stopPropagation();
+      showMenu(x, y);
+      showRipple(x, y);
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    if (menu && !menu.contains(event.target) && !event.target.closest('#word')) {
+      hideMenu();
+    }
+  });
+
+  menuItem?.addEventListener('mouseenter', (event) => {
+    menuItem.classList.add('hovered');
+    const rect = menuItem.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    for (let i = 0; i < 7; i += 1) {
+      spawnBubble(x, y);
+    }
+  });
+
+  menuItem?.addEventListener('mouseleave', () => menuItem.classList.remove('hovered'));
+
+  menuItem?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    menuItem.classList.add('pressed');
+    setTimeout(() => menuItem.classList.remove('pressed'), 150);
+    const rect = menuItem.getBoundingClientRect();
+    for (let i = 0; i < 16; i += 1) {
+      spawnBubble(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    }
+    hideMenu();
+  });
 }
 
 if (canvas) {
@@ -331,12 +344,6 @@ if (canvas) {
       createParticles();
       if (reduced && animationUnlocked) draw(performance.now());
     });
-}
-
-if (toqueUnico) toqueUnico.addEventListener('click', startAnimation);
-
-if (replayBtn) {
-  replayBtn.addEventListener('click', playIntro);
 }
 
 playIntro();
