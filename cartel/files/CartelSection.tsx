@@ -1,0 +1,87 @@
+import { useEffect, useRef, useState } from 'react'
+import { CartelScroll } from './engine'
+import { STAGES } from './stages'
+import './cartel.css'
+
+export interface CartelSectionProps {
+  /** URL del .glb (por ejemplo "/cartel.glb") o su contenido. */
+  src: string | ArrayBuffer
+  /** Largo del scroll en alturas de pantalla. */
+  scrollLength?: number
+  /** Recibe la instancia del motor cuando está listo (útil para depurar). */
+  onReady?: (engine: CartelScroll) => void
+}
+
+export default function CartelSection({ src, scrollLength = 4.5, onReady }: CartelSectionProps) {
+  const rootRef = useRef<HTMLElement>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const [stage, setStage] = useState(0)
+  const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    const root = rootRef.current
+    const host = stageRef.current
+    if (!root || !host) return
+
+    const ctrl = new AbortController()
+    let engine: CartelScroll | undefined
+
+    CartelScroll.create({ root, stage: host, source: src, scrollLength, onStage: setStage, signal: ctrl.signal })
+      .then((e) => {
+        engine = e
+        onReady?.(e)
+      })
+      .catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return
+        console.error(err)
+        setFailed(true)
+      })
+
+    return () => {
+      ctrl.abort()
+      engine?.destroy()
+    }
+    // onReady no debe reiniciar la escena.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [src, scrollLength])
+
+  const current = STAGES[stage]
+
+  return (
+    <div className="cartel-wrap">
+      <section ref={rootRef} className="cartel" aria-labelledby="cartel-title">
+        <h2 id="cartel-title" className="cartel__sr">
+          Cómo se fabrica el cartel CAMILA
+        </h2>
+
+        <div ref={stageRef} className="cartel__stage">
+          <div className="cartel__spill" aria-hidden="true" />
+          <div className="cartel__vignette" aria-hidden="true" />
+        </div>
+
+        {failed && (
+          <p className="cartel__fallback">No se pudo iniciar el visor 3D en este dispositivo.</p>
+        )}
+
+        <p className="cartel__hint">Desplaza para armar el cartel</p>
+
+        <div className="cartel__hud">
+          <div aria-live="polite">
+            <p className="cartel__caption" key={current.id}>
+              <strong>{current.title}</strong>
+              <span>{current.text}</span>
+            </p>
+          </div>
+          <ol className="cartel__rail" aria-label="Etapas de fabricación">
+            {STAGES.map((s, i) => (
+              <li key={s.id} data-active={i === stage} aria-current={i === stage ? 'step' : undefined}>
+                <i aria-hidden="true" />
+                <span>{s.label}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    </div>
+  )
+}

@@ -1,0 +1,187 @@
+/*
+  Fuente: agregar en el <head> de la página
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600&display=swap">
+*/
+
+.cartel {
+  --wall: #1b1c1e;
+  --ink: #ece8e1;
+  --ink-dim: #a29e96;
+  --hair: rgba(236, 232, 225, 0.22);
+  --warm: 255, 226, 186;
+  --pad: clamp(20px, 4vw, 48px);
+
+  position: relative;
+  height: 100svh;
+  min-height: 520px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--wall);
+  color: var(--ink);
+  font-family: 'Schibsted Grotesk', ui-sans-serif, system-ui, sans-serif;
+}
+
+.cartel.is-static {
+  height: auto;
+  min-height: 100svh;
+}
+
+.cartel__stage {
+  position: absolute;
+  inset: 0;
+}
+
+.cartel__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+.cartel.is-ready .cartel__canvas {
+  opacity: 1;
+}
+
+/* Luz que se derrama en el aire cuando el cartel enciende. */
+.cartel__spill {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(56% 34% at 50% 44%, rgba(var(--warm), 0.3), transparent 72%);
+  opacity: calc(var(--glow, 0) * 0.35);
+  mix-blend-mode: screen;
+}
+
+.cartel__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(112% 86% at 50% 44%, transparent 52%, rgba(9, 9, 10, 0.6) 100%);
+}
+
+.cartel__hint {
+  position: absolute;
+  top: var(--pad);
+  left: var(--pad);
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--ink-dim);
+  transition: opacity 0.4s ease;
+}
+.cartel.is-started .cartel__hint {
+  opacity: 0;
+}
+
+.cartel__hud {
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  grid-template-columns: minmax(0, 36ch) 1fr;
+  align-items: end;
+  gap: 24px 48px;
+  padding: 0 var(--pad) var(--pad);
+}
+
+.cartel__caption {
+  margin: 0;
+  min-height: 4.4em;
+  animation: cartel-in 0.35s ease both;
+}
+.cartel__caption strong {
+  display: block;
+  font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.cartel__caption span {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--ink-dim);
+}
+
+.cartel__rail {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  justify-self: end;
+  width: min(100%, 520px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cartel__rail li {
+  display: grid;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--ink-dim);
+  transition: color 0.3s ease;
+}
+.cartel__rail li[data-active='true'] {
+  color: var(--ink);
+}
+.cartel__rail i {
+  position: relative;
+  display: block;
+  height: 2px;
+  overflow: hidden;
+  background: var(--hair);
+}
+.cartel__rail i::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform-origin: left center;
+  transform: scaleX(var(--fill, 0));
+}
+.cartel__rail li:nth-child(1) i { --fill: var(--p-base, 0); }
+.cartel__rail li:nth-child(2) i { --fill: var(--p-bordes, 0); }
+.cartel__rail li:nth-child(3) i { --fill: var(--p-frente, 0); }
+.cartel__rail li:nth-child(4) i { --fill: var(--p-luz, 0); }
+
+.cartel__fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: var(--pad);
+  text-align: center;
+  color: var(--ink-dim);
+}
+
+.cartel__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes cartel-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (max-width: 720px) {
+  .cartel__hud {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .cartel__rail {
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cartel__canvas,
+  .cartel__hint,
+  .cartel__rail li { transition: none; }
+  .cartel__caption { animation: none; }
+}

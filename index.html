@@ -1,289 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portafolio — Intro</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div id="stage">
-    <div id="word" aria-label="Portafolio">
-      <span>P</span><span>O</span><span>R</span><span>T</span><span id="letterA">A</span><span>F</span><span>O</span><span>L</span><span>I</span><span>O</span>
-    </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Camila | Portafolio visual</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Schibsted+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css?v=3" />
+  </head>
+  <body>
+    <main>
+      <div id="stage">
+        <div id="word" aria-label="Portafolio">
+          <span>P</span><span>O</span><span>R</span><span>T</span><span>A</span><span>F</span><span>O</span><span>L</span><span>I</span><span>O</span>
+        </div>
 
-    <canvas id="particles" data-particle-portfolio aria-label="Portafolio"></canvas>
-
-    <div id="cursor" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none">
-        <path d="M4 2 L4 20 L8.5 16 L11.5 22 L14 20.5 L11 14.5 L17 14.5 Z" fill="#ffffff" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    
-
-    <div id="menu" aria-live="polite">
-      <div class="menu-item">Nuevo documento</div>
-      <div class="menu-item">Abrir...</div>
-      <div class="menu-item">Guardar como...</div>
-      <div class="menu-item">Exportar assets...</div>
-      <div class="menu-item">Preferencias</div>
-      <div class="menu-divider"></div>
-      <div class="menu-item enabled" id="toqueUnico">Toque único</div>
-    </div>
-
-    <button id="replay" type="button">↺ Reiniciar</button>
-  </div>
-
-  <section class="section-cami" aria-labelledby="cami-title">
-    <div class="cami-panel">
-      <div class="cami-viewport" id="camiViewport" aria-label="Panel del cartel CAMI">
-        <div id="camiModel" class="cami-model" aria-label="Modelo 3D de Camila"></div>
+        <canvas id="particles" data-particle-portfolio aria-label="Portafolio"></canvas>
       </div>
-    </div>
-  </section>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="components/particle-portfolio.js"></script>
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "./node_modules/three/build/three.module.js",
-        "three/addons/": "./node_modules/three/examples/jsm/"
-      }
-    }
-  </script>
-  <script type="module">
-    import * as THREE from 'three';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
-    const camiViewport = document.getElementById('camiViewport');
-    const camiModel = document.getElementById('camiModel');
-
-    if (camiViewport && camiModel) {
-      let dragActive = false;
-      const dragRaycaster = new THREE.Raycaster();
-      const dragPointer = new THREE.Vector2();
-      const dragPlane = new THREE.Plane();
-      const dragPoint = new THREE.Vector3();
-      const dragStartPoint = new THREE.Vector3();
-      const signStartPosition = new THREE.Vector3();
-      const parentWorldInverse = new THREE.Matrix4();
-      let modelRoot = null;
-      let signRoot = null;
-      let modelWorldWidth = 0;
-
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(30, camiViewport.clientWidth / camiViewport.clientHeight, 0.1, 100);
-      camera.position.set(0, 0, 5.6);
-      camera.lookAt(0, 0, 0);
-
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setSize(camiViewport.clientWidth, camiViewport.clientHeight, false);
-      renderer.outputColorSpace = THREE.SRGBColorSpace;
-      camiModel.appendChild(renderer.domElement);
-
-      const loader = new GLTFLoader();
-      const modelCandidates = [
-        new URL('./public/models/camila.glb', window.location.href).href,
-        new URL('./camila.glb', window.location.href).href
-      ];
-      const borderModelUrl = new URL('./public/models/camila%20borde.glb', window.location.href).href;
-      const frontModelUrl = new URL('./public/models/frente.glb', window.location.href).href;
-      const acrylicTextureCanvas = document.createElement('canvas');
-      acrylicTextureCanvas.width = 128;
-      acrylicTextureCanvas.height = 128;
-      const acrylicTextureContext = acrylicTextureCanvas.getContext('2d');
-      const acrylicTextureData = acrylicTextureContext.createImageData(128, 128);
-      for (let y = 0; y < 128; y += 1) {
-        for (let x = 0; x < 128; x += 1) {
-          const index = (y * 128 + x) * 4;
-          const grain = (x * 17 + y * 31 + x * y * 7) % 8;
-          acrylicTextureData.data[index] = 244 + grain;
-          acrylicTextureData.data[index + 1] = 246 + grain;
-          acrylicTextureData.data[index + 2] = 249 + grain;
-          acrylicTextureData.data[index + 3] = 255;
-        }
-      }
-      acrylicTextureContext.putImageData(acrylicTextureData, 0, 0);
-      const acrylicTexture = new THREE.CanvasTexture(acrylicTextureCanvas);
-      acrylicTexture.colorSpace = THREE.SRGBColorSpace;
-      acrylicTexture.wrapS = THREE.RepeatWrapping;
-      acrylicTexture.wrapT = THREE.RepeatWrapping;
-      acrylicTexture.repeat.set(3, 2);
-
-      const applyAcrylicUv = (geometry) => {
-        const position = geometry.attributes.position;
-        const bounds = geometry.boundingBox || (geometry.computeBoundingBox(), geometry.boundingBox);
-        const size = bounds.getSize(new THREE.Vector3());
-        const uv = new Float32Array(position.count * 2);
-        for (let vertex = 0; vertex < position.count; vertex += 1) {
-          uv[vertex * 2] = (position.getX(vertex) - bounds.min.x) / (size.x || 1);
-          uv[vertex * 2 + 1] = (position.getZ(vertex) - bounds.min.z) / (size.z || 1);
-        }
-        geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
-      };
-
-      const renderModel = () => {
-        if (!renderer || !scene || !camera) return;
-        renderer.render(scene, camera);
-      };
-
-      const resizeViewer = () => {
-        if (!camiViewport || !renderer || !camera) return;
-
-        const { clientWidth, clientHeight } = camiViewport;
-        camera.aspect = clientWidth / clientHeight;
-        if (modelWorldWidth) {
-          const fov = THREE.MathUtils.degToRad(camera.fov);
-          const distance = modelWorldWidth / (2 * Math.tan(fov / 2) * camera.aspect * 0.84);
-          camera.position.set(0, 0, distance);
-        }
-        camera.updateProjectionMatrix();
-        renderer.setSize(clientWidth, clientHeight, false);
-        renderModel();
-      };
-
-      const updateDragRay = (event) => {
-        const bounds = camiViewport.getBoundingClientRect();
-        dragPointer.set(
-          ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
-          -((event.clientY - bounds.top) / bounds.height) * 2 + 1
-        );
-        dragRaycaster.setFromCamera(dragPointer, camera);
-      };
-
-      const loadModel = async (index = 0) => {
-        try {
-          const gltf = await loader.loadAsync(modelCandidates[index]);
-          let borderGltf = null;
-          let frontGltf = null;
-          try {
-            borderGltf = await loader.loadAsync(borderModelUrl);
-          } catch (error) {
-            console.warn('No se pudo cargar el borde del cartel:', error);
-          }
-          try {
-            frontGltf = await loader.loadAsync(frontModelUrl);
-          } catch (error) {
-            console.warn('No se pudo cargar el frente acrílico:', error);
-          }
-          gltf.scene.traverse((child) => {
-            if (child.isMesh) child.geometry.computeBoundingBox();
-          });
-          const modelBounds = new THREE.Box3().setFromObject(gltf.scene);
-          const modelCenter = modelBounds.getCenter(new THREE.Vector3());
-          const modelSize = modelBounds.getSize(new THREE.Vector3());
-          const modelScale = 5 / Math.max(modelSize.x, modelSize.y, modelSize.z);
-          modelWorldWidth = modelSize.x * modelScale;
-          modelRoot = new THREE.Group();
-          gltf.scene.position.set(-modelCenter.x, -modelCenter.y, -modelCenter.z);
-          modelRoot.add(gltf.scene);
-          modelRoot.scale.setScalar(modelScale);
-          modelRoot.position.set(0, 0, 0);
-          modelRoot.rotation.z = THREE.MathUtils.degToRad(15);
-          modelRoot.traverse((child) => {
-            if (child.isMesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
-              child.frustumCulled = false;
-              const materials = Array.isArray(child.material) ? child.material : [child.material];
-              child.material = materials.map((material) => new THREE.MeshBasicMaterial({
-                color: 0xe8e4dc,
-                map: material.map || null,
-                side: THREE.DoubleSide
-              }));
-              if (child.material.length === 1) child.material = child.material[0];
-            }
-          });
-          signRoot = new THREE.Group();
-          signRoot.position.z = 0.06;
-          if (borderGltf) {
-            borderGltf.scene.position.set(-modelCenter.x, -modelCenter.y, -modelCenter.z);
-            borderGltf.scene.traverse((child) => {
-              if (child.isMesh) {
-                child.frustumCulled = false;
-                child.renderOrder = 1;
-                child.material = new THREE.MeshBasicMaterial({
-                  color: 0xe8e4dc,
-                  side: THREE.DoubleSide
-                });
-              }
-            });
-            signRoot.add(borderGltf.scene);
-          }
-          if (frontGltf) {
-            frontGltf.scene.position.set(-modelCenter.x, -modelCenter.y, -modelCenter.z);
-            frontGltf.scene.traverse((child) => {
-              if (child.isMesh) {
-                applyAcrylicUv(child.geometry);
-                child.frustumCulled = false;
-                child.renderOrder = 2;
-                child.material = new THREE.MeshBasicMaterial({
-                  color: 0xf7f9fc,
-                  map: acrylicTexture,
-                  transparent: true,
-                  opacity: 0.62,
-                  side: THREE.DoubleSide,
-                  depthWrite: false,
-                  polygonOffset: true,
-                  polygonOffsetFactor: -1,
-                  polygonOffsetUnits: -1
-                });
-              }
-            });
-            signRoot.add(frontGltf.scene);
-          }
-          modelRoot.add(signRoot);
-          scene.add(modelRoot);
-          resizeViewer();
-        } catch (error) {
-          if (index < modelCandidates.length - 1) {
-            loadModel(index + 1);
-            return;
-          }
-          console.warn('No se pudo cargar el modelo Camila GLB:', error);
-        }
-      };
-
-      camiViewport.addEventListener('pointerdown', (event) => {
-        if (!signRoot) return;
-
-        modelRoot.updateMatrixWorld(true);
-        signRoot.getWorldPosition(signStartPosition);
-        dragPlane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 0, 1), signStartPosition);
-        updateDragRay(event);
-        if (!dragRaycaster.ray.intersectPlane(dragPlane, dragStartPoint)) return;
-
-        dragActive = true;
-        camiViewport.setPointerCapture(event.pointerId);
-      });
-
-      camiViewport.addEventListener('pointermove', (event) => {
-        if (!dragActive || !signRoot) return;
-
-        updateDragRay(event);
-        if (!dragRaycaster.ray.intersectPlane(dragPlane, dragPoint)) return;
-
-        dragPoint.sub(dragStartPoint).add(signStartPosition);
-        parentWorldInverse.copy(signRoot.parent.matrixWorld).invert();
-        signRoot.position.copy(dragPoint.applyMatrix4(parentWorldInverse));
-        renderModel();
-      });
-
-      ['pointerup', 'pointerleave', 'pointercancel'].forEach((eventName) => {
-        camiViewport.addEventListener(eventName, () => {
-          dragActive = false;
-        });
-      });
-
-      window.addEventListener('resize', resizeViewer);
-      resizeViewer();
-      loadModel();
-    }
-  </script>
-</body>
+      <section class="section-cami" id="pieza">
+        <div class="cami-panel">
+          <div id="root"></div>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/components/particle-portfolio.js?v=4"></script>
+    <script type="module" src="/main.tsx"></script>
+  </body>
 </html>

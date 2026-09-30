@@ -1,3 +1,5 @@
+import { gsap } from 'gsap';
+
 const stage = document.getElementById('stage');
 const wordEl = document.getElementById('word');
 const letters = wordEl ? wordEl.querySelectorAll('span') : [];
@@ -9,6 +11,9 @@ const toqueUnico = document.getElementById('toqueUnico');
 const replayBtn = document.getElementById('replay');
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let animationUnlocked = false;
+let introTimeline = null;
+let outroTimeline = null;
+let introGeneration = 0;
 
 function rand(max = 1, min = 0, dec = 0) {
   return +(min + Math.random() * (max - min)).toFixed(dec);
@@ -29,24 +34,34 @@ function ripple(x, y) {
 }
 
 function resetState() {
+  introGeneration += 1;
+  introTimeline?.kill();
+  outroTimeline?.kill();
+  introTimeline = null;
+  outroTimeline = null;
+  animationUnlocked = false;
   gsap.killTweensOf([cursor, menu, letters, wordEl, canvas]);
   gsap.set(letters, { opacity: 0, y: 14 });
   gsap.set(wordEl, { opacity: 1 });
+  if (wordEl) wordEl.style.visibility = 'visible';
   gsap.set(canvas, { opacity: 0 });
   gsap.set(cursor, { opacity: 0, x: window.innerWidth * 0.72, y: window.innerHeight * 0.86 });
   gsap.set(menu, { opacity: 0, scale: 0.85, x: 0, y: 0 });
   if (toqueUnico) {
     toqueUnico.classList.remove('hovered', 'pressed');
   }
+  window.dispatchEvent(new Event('portfolio:replay'));
 }
 
-function startAnimation() {
-  if (!canvas || animationUnlocked) return;
+function startAnimation(generation = introGeneration) {
+  if (!canvas || animationUnlocked || generation !== introGeneration) return;
 
+  introTimeline?.kill();
+  introTimeline = null;
   animationUnlocked = true;
 
-  const wordTimeline = gsap.timeline();
-  wordTimeline
+  outroTimeline = gsap.timeline();
+  outroTimeline
     .to(menu, { opacity: 0, scale: 0.9, duration: 0.3, ease: 'power2.inOut' })
     .to(cursor, { opacity: 0, duration: 0.25 }, 0)
     .to(wordEl, {
@@ -60,7 +75,7 @@ function startAnimation() {
       }
     }, 0.05)
     .call(() => {
-      if (wordEl) {
+      if (wordEl && generation === introGeneration) {
         wordEl.style.visibility = 'hidden';
       }
     }, [], 0.7);
@@ -73,18 +88,22 @@ function startAnimation() {
 function playIntro() {
   if (reduced) {
     resetState();
+    animationUnlocked = true;
     gsap.set(letters, { opacity: 1, y: 0 });
     gsap.set(canvas, { opacity: 1 });
+    window.dispatchEvent(new Event('portfolio:draw-static'));
     return;
   }
 
   resetState();
+  const generation = introGeneration;
 
-  const tl = gsap.timeline();
+  introTimeline = gsap.timeline();
 
-  tl.to(letters, { opacity: 1, y: 0, duration: 0.6, stagger: 0.04, ease: 'power2.out' })
+  introTimeline.to(letters, { opacity: 1, y: 0, duration: 0.6, stagger: 0.04, ease: 'power2.out' })
     .to(cursor, { opacity: 1, duration: 0.3 }, '+=0.3')
     .add(() => {
+      if (generation !== introGeneration) return;
       const c = center(letterA);
       gsap.to(cursor, {
         x: c.x - 4,
@@ -92,6 +111,7 @@ function playIntro() {
         duration: 1,
         ease: 'power2.inOut',
         onComplete: () => {
+          if (generation !== introGeneration) return;
           ripple(c.x, c.y);
           gsap.to(cursor, { scale: 0.82, duration: 0.08, yoyo: true, repeat: 1 });
         }
@@ -99,12 +119,14 @@ function playIntro() {
     })
     .to({}, { duration: 1.3 })
     .add(() => {
+      if (generation !== introGeneration) return;
       const r = letterA.getBoundingClientRect();
       gsap.set(menu, { x: r.right + 14, y: r.bottom + 10 });
       gsap.to(menu, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(1.6)' });
     })
     .to({}, { duration: 0.5 })
     .add(() => {
+      if (generation !== introGeneration) return;
       const t = center(toqueUnico);
       gsap.to(cursor, {
         x: t.x - 4,
@@ -112,7 +134,7 @@ function playIntro() {
         duration: 0.7,
         ease: 'power2.inOut',
         onComplete: () => {
-          if (toqueUnico) toqueUnico.classList.add('hovered');
+          if (generation === introGeneration && toqueUnico) toqueUnico.classList.add('hovered');
         }
       });
     })
@@ -125,7 +147,7 @@ function playIntro() {
     })
     .to({}, { duration: 0.25 })
     .call(() => {
-      startAnimation();
+      startAnimation(generation);
     });
 }
 
@@ -139,9 +161,9 @@ if (canvas) {
     let animationStartTime = 0;
 
     const getSettings = () => ({
-        gap: window.innerWidth < 800 ? 3.5 : 4.8,
-        radius: window.innerWidth < 800 ? 3.2 : 4.4,
-        fontSize: Math.min(window.innerWidth * 0.12, 200),
+      gap: window.innerWidth < 760 ? 3.5 : 4.8,
+      radius: window.innerWidth < 760 ? 3.2 : 4.4,
+      fontSize: window.innerWidth < 520 ? 50 : window.innerWidth < 760 ? 72 : 120,
     });
 
     const colorStops = [
@@ -177,7 +199,7 @@ if (canvas) {
         const textContext = textCanvas.getContext('2d', { willReadFrequently: true });
         textContext.setTransform(scale, 0, 0, scale, 0, 0);
         textContext.clearRect(0, 0, bounds.width, bounds.height);
-        textContext.font = `700 ${settings.fontSize}px Arial, sans-serif`;
+        textContext.font = `${settings.fontSize}px Anton, sans-serif`;
         textContext.textAlign = 'center';
         textContext.textBaseline = 'middle';
         textContext.fillStyle = '#ffffff';
@@ -242,6 +264,10 @@ if (canvas) {
         pointer.y += (pointer.targetY - pointer.y) * 0.15;
 
         particles.forEach((particle) => {
+          if (reduced) {
+            particle.x = particle.ox;
+            particle.y = particle.oy;
+          }
             const dx = particle.x - pointer.x;
             const dy = particle.y - pointer.y;
             const distance = Math.hypot(dx, dy);
@@ -288,6 +314,10 @@ if (canvas) {
         pointer.active = true;
     };
 
+    window.addEventListener('portfolio:draw-static', () => {
+      if (reduced) draw(performance.now());
+    });
+
     canvas.addEventListener('mousemove', updatePointer);
     canvas.addEventListener('touchmove', updatePointer, { passive: true });
     canvas.addEventListener('mouseleave', () => { pointer.active = false; });
@@ -296,12 +326,14 @@ if (canvas) {
     resizeObserver = new ResizeObserver(createParticles);
     resizeObserver.observe(canvas);
     createParticles();
-    draw(performance.now());
+    if (!reduced) draw(performance.now());
+    document.fonts?.ready.then(() => {
+      createParticles();
+      if (reduced && animationUnlocked) draw(performance.now());
+    });
 }
 
-if (toqueUnico) {
-  toqueUnico.style.pointerEvents = 'none';
-}
+if (toqueUnico) toqueUnico.addEventListener('click', startAnimation);
 
 if (replayBtn) {
   replayBtn.addEventListener('click', playIntro);
