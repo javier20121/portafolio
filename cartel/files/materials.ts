@@ -14,6 +14,7 @@ float vnoise(vec2 p){
 
 const WARM = 'vec3(1.0, 0.78, 0.86)'
 const LILAC = 'vec3(0.74, 0.52, 0.94)'
+const BORDER = 'vec3(0.41176, 0.03529, 0.6)'
 
 export interface Shared {
   /** Límites del cartel (XY) para normalizar coordenadas. */
@@ -96,7 +97,7 @@ export function createBordeMaterial(s: Shared) {
     uGlow: u(0),
   }
   const mat = new THREE.MeshStandardMaterial({
-    color: 0x7c5bd9,
+    color: 0x690599,
     roughness: 0.56,
     metalness: 0.08,
     side: THREE.DoubleSide,
@@ -130,7 +131,7 @@ ${NOISE}`,
         '#include <clipping_planes_fragment>',
         `#include <clipping_planes_fragment>
 if (vD < 0.0) discard;
-float riseB = smoothstep(0.0, 1.0, clamp(vD / 0.055, 0.0, 1.0));
+float riseB = smoothstep(0.0, 1.0, clamp(vD / 0.085, 0.0, 1.0));
 if (vH > riseB) discard;
 float frontier = (1.0 - smoothstep(0.0, 0.12, riseB - vH)) * (1.0 - smoothstep(0.75, 1.0, riseB));`,
       )
@@ -144,7 +145,7 @@ float frontier = (1.0 - smoothstep(0.0, 0.12, riseB - vH)) * (1.0 - smoothstep(0
       .replace(
         '#include <emissivemap_fragment>',
         `#include <emissivemap_fragment>
-    totalEmissiveRadiance += ${LILAC} * (frontier * 0.28 + uGlow * 0.85);`,
+    totalEmissiveRadiance += ${BORDER} * (frontier * 0.28 + uGlow * 0.85);`,
       )
   }
   return { material: mat, uniforms }

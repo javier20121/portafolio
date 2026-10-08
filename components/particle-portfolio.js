@@ -2,6 +2,7 @@ import { gsap } from 'gsap';
 
 const wordEl = document.getElementById('word');
 const letters = wordEl ? wordEl.querySelectorAll('span') : [];
+const letterA = document.getElementById('letterA');
 const canvas = document.getElementById('particles');
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let animationUnlocked = false;
@@ -28,6 +29,9 @@ function playIntro() {
   gsap.set(letters, { opacity: 0, y: 14 });
   gsap.set(wordEl, { opacity: 1, y: 0, visibility: 'visible' });
   gsap.set(canvas, { opacity: 0 });
+  gsap.set(cursor, { opacity: 0, scale: 1, x: 0, y: 0 });
+  gsap.set(menu, { opacity: 0, scale: 0.85, x: 0, y: 0 });
+  if (menuItem) menuItem.classList.remove('hovered', 'pressed');
 
   if (reduced) {
     animationUnlocked = true;
@@ -37,14 +41,59 @@ function playIntro() {
     return;
   }
 
-  gsap.to(letters, {
-    opacity: 1,
-    y: 0,
-    duration: 0.6,
-    stagger: 0.04,
-    ease: 'power2.out',
-    onComplete: () => gsap.delayedCall(0.45, startAnimation),
-  });
+  const tl = gsap.timeline();
+
+  tl.to(letters, { opacity: 1, y: 0, duration: 0.6, stagger: 0.04, ease: 'power2.out' })
+    .to(cursor, { opacity: 1, duration: 0.3 }, '+=0.25')
+    .add(() => {
+      if (!letterA) return;
+      const rect = letterA.getBoundingClientRect();
+      const stageRect = stage.getBoundingClientRect();
+      const x = rect.left + rect.width / 2 - stageRect.left;
+      const y = rect.top + rect.height / 2 - stageRect.top;
+      setCursorPosition(x, y);
+      showRipple(x, y);
+      gsap.to(cursor, { x, y, duration: 0.95, ease: 'power2.inOut' });
+    })
+    .to({}, { duration: 0.8 })
+    .add(() => {
+      if (!letterA || !menu) return;
+      const rect = letterA.getBoundingClientRect();
+      const x = rect.right + 14;
+      const y = rect.bottom + 10;
+      showMenu(x - stage.getBoundingClientRect().left, y - stage.getBoundingClientRect().top);
+    })
+    .to({}, { duration: 0.65 })
+    .add(() => {
+      if (!menuItem) return;
+      const rect = menuItem.getBoundingClientRect();
+      const x = rect.left + rect.width / 2 - stage.getBoundingClientRect().left;
+      const y = rect.top + rect.height / 2 - stage.getBoundingClientRect().top;
+      setCursorPosition(x, y);
+      menuItem.classList.add('hovered');
+      for (let i = 0; i < 7; i += 1) {
+        spawnBubble(x, y);
+      }
+    })
+    .to({}, { duration: 0.9 })
+    .add(() => {
+      if (!menuItem) return;
+      const rect = menuItem.getBoundingClientRect();
+      const x = rect.left + rect.width / 2 - stage.getBoundingClientRect().left;
+      const y = rect.top + rect.height / 2 - stage.getBoundingClientRect().top;
+      showRipple(x, y);
+      menuItem.classList.add('pressed');
+      for (let i = 0; i < 16; i += 1) {
+        spawnBubble(x, y);
+      }
+      gsap.to(cursor, { scale: 0.82, duration: 0.08, yoyo: true, repeat: 1 });
+    })
+    .to(menu, { opacity: 0, scale: 0.9, duration: 0.3 }, '<')
+    .to(cursor, { opacity: 0, duration: 0.2 }, '<')
+    .call(() => {
+      hideMenu();
+      startAnimation();
+    });
 }
 
 const stage = document.getElementById('stage');
@@ -77,18 +126,26 @@ function setCursorPosition(x, y) {
   if (!cursor) return;
   cursor.style.left = `${x}px`;
   cursor.style.top = `${y}px`;
+  cursor.style.opacity = '1';
+  cursor.style.transform = 'translate(-50%, -50%) scale(1)';
 }
 
 function showMenu(x, y) {
   if (!menu) return;
   menu.style.left = `${x}px`;
   menu.style.top = `${y + 12}px`;
+  menu.style.opacity = '1';
+  menu.style.pointerEvents = 'auto';
+  menu.style.transform = 'translate(0, 0) scale(1)';
   menu.classList.add('visible');
   menu.setAttribute('aria-hidden', 'false');
 }
 
 function hideMenu() {
   if (!menu) return;
+  menu.style.opacity = '0';
+  menu.style.pointerEvents = 'none';
+  menu.style.transform = 'translate(-12px, -10px) scale(0.85)';
   menu.classList.remove('visible');
   menu.setAttribute('aria-hidden', 'true');
 }
@@ -118,7 +175,10 @@ if (stage && cursor) {
 
   window.addEventListener('pointerup', () => cursor.classList.remove('pressed'));
 
-  window.addEventListener('pointerleave', () => cursor.classList.remove('visible'));
+  window.addEventListener('pointerleave', () => {
+    cursor.classList.remove('visible');
+    cursor.style.opacity = '0';
+  });
 
   stage.addEventListener('click', (event) => {
     const rect = stage.getBoundingClientRect();
@@ -135,12 +195,14 @@ if (stage && cursor) {
   });
 
   document.addEventListener('click', (event) => {
-    if (menu && !menu.contains(event.target) && !event.target.closest('#word')) {
+    const target = event.target;
+    const shouldIgnore = !menu || menu.contains(target) || target === stage || target === canvas || target.closest('#word');
+    if (!shouldIgnore) {
       hideMenu();
     }
   });
 
-  menuItem?.addEventListener('mouseenter', (event) => {
+  menuItem?.addEventListener('mouseenter', () => {
     menuItem.classList.add('hovered');
     const rect = menuItem.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
@@ -162,6 +224,8 @@ if (stage && cursor) {
     }
     hideMenu();
   });
+
+  playIntro();
 }
 
 if (canvas) {
