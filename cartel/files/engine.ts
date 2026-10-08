@@ -30,6 +30,8 @@ export interface CartelOptions {
   source: string | ArrayBuffer
   /** Largo del scroll en alturas de viewport. */
   scrollLength?: number
+  /** Desactiva el pin interno cuando la sección ya está dentro de una escena fijada. */
+  pin?: boolean
   /** Texto alternativo del canvas. */
   label?: string
   /** Se llama cuando cambia la etapa visible: 0 base, 1 bordes, 2 frente, 3 luz. */
@@ -41,9 +43,9 @@ export interface CartelOptions {
 /** Color de la pared. Ajustado para mantener la profundidad dark y evitar sobreexposición. */
 const WALL = 0x1d1d22
 /** Intensidad de emisión de los módulos LED cuando están al 100 %. */
-const LED_GAIN = 5.2
+const LED_GAIN = 3.8
 /** Progreso del timeline (0..1) a partir del cual se encienden las luces. */
-const LIGHTS_AT = 0.895
+const LIGHTS_AT = 0.75
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t))
@@ -262,7 +264,7 @@ export class CartelScroll {
         trigger: root,
         start: 'top top',
         end: () => `+=${Math.round(window.innerHeight * (o.scrollLength ?? 4.5))}`,
-        pin: true,
+        pin: o.pin ?? true,
         scrub: 1.6,
         anticipatePin: 1,
         invalidateOnRefresh: true,
@@ -276,7 +278,6 @@ export class CartelScroll {
     this.composer.render()
     root.classList.remove('is-loading')
     root.classList.add('is-ready')
-    if (this.reduced) root.classList.add('is-static')
     gsap.ticker.add(this.tick)
   }
 
@@ -316,7 +317,7 @@ export class CartelScroll {
     this.renderer.dispose()
     this.renderer.forceContextLoss()
     this.renderer.domElement.remove()
-    this.o.root.classList.remove('is-loading', 'is-ready', 'is-started', 'is-static')
+    this.o.root.classList.remove('is-loading', 'is-ready', 'is-started')
   }
 
   // --- Luz ------------------------------------------------------------------
@@ -340,24 +341,55 @@ export class CartelScroll {
       return
     }
 
-    // Corto eléctrico: tres destellos cada vez más largos y luego queda fija.
-    // Cada letra arranca con un pequeño desfase para que no parpadee en bloque.
-    const offsets = [0, 0.035, 0.012, 0.06, 0.024, 0.045, 0.03, 0.05]
-    const steps: [number, number][] = [
-      [0.0, 0],
-      [0.05, 0.6],
-      [0.12, 0.04],
-      [0.33, 0.9],
-      [0.39, 0.0],
-      [0.66, 1.0],
-      [0.78, 0.08],
-      [1.02, 1.14],
-    ]
+    // Cada letra titila con un desfase y una intensidad propios antes de quedar fija.
     const tl = gsap.timeline()
+    let otherLettersOnAt = 0
     for (let k = 0; k < n; k++) {
-      const o = offsets[k % offsets.length]
-      steps.forEach(([t, v]) => tl.set(L, { [k]: v } as gsap.TweenVars, o + t))
-      tl.to(L, { [k]: 1, duration: 0.7, ease: 'power2.out' } as gsap.TweenVars, o + 1.04)
+      const isLastLetter = k === n - 1
+      const delay = ((k * 0.618) % 1) * 1.6 + (isLastLetter ? 0.45 : 0)
+      const pace = 0.78 + ((k * 0.4142) % 1) * 0.32
+      const variation = ((k * 0.732) % 1) * 0.12
+      const steps: [number, number][] = [
+        [0, 0],
+        [(0.1 + variation) * pace, 0.42 + (k % 2) * 0.12],
+        [(0.23 + variation) * pace, 0.04],
+        [(0.48 + (k % 2) * 0.09 + variation) * pace, 0.72 - (k % 3) * 0.08],
+        [(0.62 + (k % 2) * 0.09 + variation) * pace, 0],
+        [(0.92 + variation) * pace, 0.88],
+        [(1.08 + variation) * pace, 0.1],
+      ]
+      if (isLastLetter) {
+        steps.push(
+          [(1.28 + variation) * pace, 0.62],
+          [(1.42 + variation) * pace, 0.08],
+        )
+      }
+      steps.forEach(([t, v]) => tl.set(L, { [k]: v } as gsap.TweenVars, delay + t))
+      if (isLastLetter) {
+        const flickerAt = Math.max(otherLettersOnAt, delay + (1.42 + variation) * pace)
+        const flickerSteps: [number, number][] = [
+          [0, 0.08],
+          [0.22, 0.72],
+          [0.43, 0.06],
+          [0.71, 0.48],
+          [0.96, 0.03],
+          [1.19, 0.82],
+          [1.47, 0.09],
+          [1.73, 0.58],
+          [1.98, 0.04],
+          [2.24, 0.76],
+          [2.51, 0.07],
+          [2.76, 0.42],
+          [3, 0.05],
+        ]
+        flickerSteps.forEach(([t, v]) => tl.set(L, { [k]: v } as gsap.TweenVars, flickerAt + t))
+        tl.to(L, { [k]: 1, duration: 0.65, ease: 'power3.out' } as gsap.TweenVars, flickerAt + 3)
+      } else {
+        const rampAt = delay + 1.35 * pace + variation
+        const duration = 1.1 * pace
+        tl.to(L, { [k]: 1, duration, ease: 'power3.out' } as gsap.TweenVars, rampAt)
+        otherLettersOnAt = Math.max(otherLettersOnAt, rampAt + duration)
+      }
     }
     gsap.to(this.ambient, { intensity: ambientIntensity, duration: 0.35, ease: 'power2.out' })
     this.flicker = tl

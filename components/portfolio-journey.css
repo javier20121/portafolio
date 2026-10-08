@@ -1,0 +1,38 @@
+.portfolio-journey {
+  position: relative;
+  min-height: 100svh;
+  overflow: clip;
+  background: #f5f4f3;
+}
+
+.portfolio-journey__viewport {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.portfolio-journey__track {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  align-items: stretch;
+  will-change: transform;
+}
+
+.portfolio-journey__cartel {
+  flex: 0 0 100vw;
+  width: 100vw;
+  height: 100svh;
+}
+
+.portfolio-journey__cartel .cartel {
+  width: 100%;
+  height: 100%;
+}
+
+.portfolio-journey__gallery {
+  flex: 0 0 auto;
+  height: 100svh;
+}

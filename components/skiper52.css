@@ -1,0 +1,69 @@
+.skiper52 {
+  display: flex;
+  width: max-content;
+  height: 100svh;
+  align-items: center;
+  gap: 5vw;
+  padding-inline: 5vw;
+  background: #f5f4f3;
+  color: #171717;
+}
+
+.skiper52__card {
+  position: relative;
+  flex: 0 0 90vw;
+  height: min(76svh, 44rem);
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background: #dedbd8;
+  transform: scale(0.96);
+  transition: transform 350ms ease;
+}
+
+.skiper52__card.is-active {
+  transform: scale(1);
+}
+
+.skiper52__card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 12%;
+}
+
+.skiper52__card::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent 38%);
+  content: '';
+}
+
+.skiper52__code {
+  position: absolute;
+  z-index: 1;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  text-align: right;
+}
+
+@media (max-width: 760px) {
+  .skiper52 {
+    gap: 5vw;
+    padding-inline: 5vw;
+  }
+
+  .skiper52__card {
+    flex-basis: 90vw;
+    height: min(68svh, 34rem);
+    border-radius: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skiper52__card {
+    transition: none;
+  }
+}
