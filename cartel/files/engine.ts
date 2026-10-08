@@ -26,8 +26,6 @@ export interface CartelOptions {
   root: HTMLElement
   /** Contenedor donde se agrega el canvas. */
   stage: HTMLElement
-  /** Galería horizontal que aparece al final del scroll. */
-  gallery: HTMLElement
   /** URL del .glb o su contenido ya descargado. */
   source: string | ArrayBuffer
   /** Largo del scroll en alturas de viewport. */
@@ -82,14 +80,11 @@ export class CartelScroll {
   private readonly st?: ScrollTrigger
   private readonly ro: ResizeObserver
   private readonly io: IntersectionObserver
-  private readonly stageElement: HTMLElement
 
   private readonly frente: THREE.Mesh
   private readonly fondo: THREE.Mesh
   private readonly borde: THREE.Mesh
   private readonly ambient: THREE.HemisphereLight
-  private readonly gallery: HTMLElement
-  private readonly galleryTrack: HTMLElement
   private readonly leds: Led[]
   private readonly ledMats: THREE.MeshStandardMaterial[]
   private readonly shadowMaps: THREE.CanvasTexture[]
@@ -128,9 +123,6 @@ export class CartelScroll {
     this.frente = frente
     this.fondo = fondo
     this.borde = borde
-    this.stageElement = o.stage
-    this.gallery = o.gallery
-    this.galleryTrack = this.gallery.querySelector<HTMLElement>('.cartel-gallery__track') ?? this.gallery
 
     const ranges = letterRanges(frente.geometry).slice(0, LETTER_COUNT_MAX)
     this.nLetters = ranges.length
@@ -259,20 +251,12 @@ export class CartelScroll {
       // El cierre conserva un giro leve para que el PVC siga mostrando espesor.
       tl.to(S.cam, { yaw: -0.36, pitch: 0.12, k: 0.98, tx: 0, duration: 6.6 }, 0)
       tl.to(S.cam, { yaw: 0.105, pitch: 0, k: 1, tx: 0, duration: 2.4, ease: 'power2.inOut' }, 6.6)
-    tl.to(this.gallery, { opacity: 1, duration: 0.8, ease: 'power1.out' }, 6.8)
-    tl.to(this.galleryTrack, { xPercent: -48, duration: 2.0, ease: 'power2.inOut' }, 7.4)
-    tl.to(this.stageElement, { opacity: 0, duration: 0.9, ease: 'power2.inOut' }, 8.2)
-    tl.to(this.gallery, { opacity: 1, duration: 0.8, ease: 'power1.out' }, 8.6)
-    tl.to(this.gallery, { opacity: 0, duration: 0.7, ease: 'power1.in' }, 9.6)
     tl.to({}, { duration: 0.1 }, 9.9)
     this.tl = tl
 
     if (this.reduced) {
       tl.progress(1)
       this.setLights(true, true)
-      this.stageElement.style.opacity = '0'
-      this.gallery.style.opacity = '1'
-      this.galleryTrack.style.transform = 'translate3d(-48%, 0, 0)'
     } else {
       this.st = ScrollTrigger.create({
         trigger: root,
@@ -356,24 +340,24 @@ export class CartelScroll {
       return
     }
 
-    // Encendido lento y suave: cada letra se ilumina en secuencia.
-    // El desfase prolongado evita que el resultado parezca un parpadeo eléctrico.
-    const offsets = [0, 0.35, 0.7, 1.05, 1.4, 1.75, 2.1, 2.45]
+    // Corto eléctrico: tres destellos cada vez más largos y luego queda fija.
+    // Cada letra arranca con un pequeño desfase para que no parpadee en bloque.
+    const offsets = [0, 0.035, 0.012, 0.06, 0.024, 0.045, 0.03, 0.05]
     const steps: [number, number][] = [
       [0.0, 0],
-      [0.15, 0.45],
-      [0.32, 0.08],
-      [0.58, 0.72],
-      [0.72, 0.02],
-      [1.02, 0.94],
-      [1.22, 0.08],
-      [1.42, 1.0],
+      [0.05, 0.6],
+      [0.12, 0.04],
+      [0.33, 0.9],
+      [0.39, 0.0],
+      [0.66, 1.0],
+      [0.78, 0.08],
+      [1.02, 1.14],
     ]
     const tl = gsap.timeline()
     for (let k = 0; k < n; k++) {
       const o = offsets[k % offsets.length]
       steps.forEach(([t, v]) => tl.set(L, { [k]: v } as gsap.TweenVars, o + t))
-      tl.to(L, { [k]: 1, duration: 1.4, ease: 'power2.inOut' } as gsap.TweenVars, o + 1.42)
+      tl.to(L, { [k]: 1, duration: 0.7, ease: 'power2.out' } as gsap.TweenVars, o + 1.04)
     }
     gsap.to(this.ambient, { intensity: ambientIntensity, duration: 0.35, ease: 'power2.out' })
     this.flicker = tl

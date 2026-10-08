@@ -5,6 +5,6 @@ import './app.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <CartelSection src="/cartel.glb" scrollLength={4.5} />
+    <CartelSection src="/cartel.glb" scrollLength={3.2} />
   </StrictMode>,
 )

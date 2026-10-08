@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { CartelScroll } from './engine'
-import CartelGallery from './CartelGallery'
 import './cartel.css'
 
 export interface CartelSectionProps {
@@ -15,19 +14,17 @@ export interface CartelSectionProps {
 export default function CartelSection({ src, scrollLength = 4.5, onReady }: CartelSectionProps) {
   const rootRef = useRef<HTMLElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
-  const galleryRef = useRef<HTMLDivElement>(null)
   const [failed, setFailed] = useState(false)
 
   useEffect(() => {
     const root = rootRef.current
     const host = stageRef.current
-    const gallery = galleryRef.current
-    if (!root || !host || !gallery) return
+    if (!root || !host) return
 
     const ctrl = new AbortController()
     let engine: CartelScroll | undefined
 
-    CartelScroll.create({ root, stage: host, gallery, source: src, scrollLength, signal: ctrl.signal })
+    CartelScroll.create({ root, stage: host, source: src, scrollLength, signal: ctrl.signal })
       .then((e) => {
         engine = e
         onReady?.(e)
@@ -57,10 +54,6 @@ export default function CartelSection({ src, scrollLength = 4.5, onReady }: Cart
         <div ref={stageRef} className="cartel__stage">
           <div className="cartel__spill" aria-hidden="true" />
           <div className="cartel__vignette" aria-hidden="true" />
-        </div>
-
-        <div ref={galleryRef}>
-          <CartelGallery />
         </div>
 
         {failed && (
