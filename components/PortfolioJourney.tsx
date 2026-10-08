@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import CartelSection from '../cartel/files/CartelSection'
-import Skiper52 from './skiper52'
+import Skiper52, { galleryCardCount } from './skiper52'
 import './portfolio-journey.css'
 
 const CARTEL_SCROLL_LENGTH = 3.2
-const GALLERY_CARD_COUNT = 9
 
 export default function PortfolioJourney() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -41,7 +40,7 @@ export default function PortfolioJourney() {
 
         const imageProgress = Math.max(0, horizontal - galleryStart)
         const nextIndex = Math.min(
-          GALLERY_CARD_COUNT - 1,
+          galleryCardCount - 1,
           Math.floor((imageProgress + galleryStep / 2) / galleryStep),
         )
         setActiveIndex((current) => (current === nextIndex ? current : nextIndex))
