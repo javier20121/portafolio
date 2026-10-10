@@ -10,7 +10,7 @@
   height: 100svh;
   overflow: clip;
   isolation: isolate;
-  background: var(--wall);
+  background: transparent;
   color: var(--ink);
   font-family: 'Schibsted Grotesk', ui-sans-serif, system-ui, sans-serif;
 }

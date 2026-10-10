@@ -14,10 +14,9 @@ function startAnimation() {
   gsap.to(wordEl, {
     opacity: 0,
     scale: 1.03,
-    y: -18,
-    duration: 0.7,
-    ease: 'power2.inOut',
-    onStart: () => gsap.to(canvas, { opacity: 1, duration: 0.45, ease: 'power2.out' }),
+    duration: 0.6,
+    ease: 'power1.inOut',
+    onStart: () => gsap.to(canvas, { opacity: 1, duration: 0.6, ease: 'power1.inOut' }),
     onComplete: () => { wordEl.style.visibility = 'hidden'; },
   });
 }
@@ -26,12 +25,21 @@ function playIntro() {
   if (!canvas || !wordEl) return;
 
   animationUnlocked = false;
+  gsap.killTweensOf([cursor, menu, letters, wordEl, canvas]);
   gsap.set(letters, { opacity: 0, y: 14 });
   gsap.set(wordEl, { opacity: 1, y: 0, visibility: 'visible' });
   gsap.set(canvas, { opacity: 0 });
-  gsap.set(cursor, { opacity: 0, scale: 1, x: 0, y: 0 });
+  gsap.set(cursor, {
+    opacity: 0,
+    scale: 1,
+    x: 0,
+    y: 0,
+    left: stage.clientWidth * 0.72,
+    top: stage.clientHeight * 0.86,
+  });
   gsap.set(menu, { opacity: 0, scale: 0.85, x: 0, y: 0 });
   if (menuItem) menuItem.classList.remove('hovered', 'pressed');
+  hideMenu();
 
   if (reduced) {
     animationUnlocked = true;
@@ -51,36 +59,53 @@ function playIntro() {
       const stageRect = stage.getBoundingClientRect();
       const x = rect.left + rect.width / 2 - stageRect.left;
       const y = rect.top + rect.height / 2 - stageRect.top;
-      setCursorPosition(x, y);
-      showRipple(x, y);
-      gsap.to(cursor, { x, y, duration: 0.95, ease: 'power2.inOut' });
+      gsap.to(cursor, {
+        left: x - 4,
+        top: y - 20,
+        duration: 1,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          showRipple(x, y);
+          gsap.to(cursor, { scale: 0.82, duration: 0.08, yoyo: true, repeat: 1 });
+        },
+      });
     })
-    .to({}, { duration: 0.8 })
+    .to({}, { duration: 1.3 })
     .add(() => {
       if (!letterA || !menu) return;
       const rect = letterA.getBoundingClientRect();
-      const x = rect.right + 14;
-      const y = rect.bottom + 10;
-      showMenu(x - stage.getBoundingClientRect().left, y - stage.getBoundingClientRect().top);
+      const stageRect = stage.getBoundingClientRect();
+      const x = rect.right + 14 - stageRect.left;
+      const y = rect.bottom + 10 - stageRect.top;
+      showMenu(x, y - 12);
     })
-    .to({}, { duration: 0.65 })
+    .to({}, { duration: 0.5 })
     .add(() => {
       if (!menuItem) return;
       const rect = menuItem.getBoundingClientRect();
-      const x = rect.left + rect.width / 2 - stage.getBoundingClientRect().left;
-      const y = rect.top + rect.height / 2 - stage.getBoundingClientRect().top;
-      setCursorPosition(x, y);
-      menuItem.classList.add('hovered');
-      for (let i = 0; i < 7; i += 1) {
-        spawnBubble(x, y);
-      }
+      const stageRect = stage.getBoundingClientRect();
+      const x = rect.left + rect.width / 2 - stageRect.left;
+      const y = rect.top + rect.height / 2 - stageRect.top;
+      gsap.to(cursor, {
+        left: x - 4,
+        top: y - 6,
+        duration: 0.7,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          menuItem.classList.add('hovered');
+          for (let i = 0; i < 7; i += 1) {
+            spawnBubble(x, y);
+          }
+        },
+      });
     })
     .to({}, { duration: 0.9 })
     .add(() => {
       if (!menuItem) return;
       const rect = menuItem.getBoundingClientRect();
-      const x = rect.left + rect.width / 2 - stage.getBoundingClientRect().left;
-      const y = rect.top + rect.height / 2 - stage.getBoundingClientRect().top;
+      const stageRect = stage.getBoundingClientRect();
+      const x = rect.left + rect.width / 2 - stageRect.left;
+      const y = rect.top + rect.height / 2 - stageRect.top;
       showRipple(x, y);
       menuItem.classList.add('pressed');
       for (let i = 0; i < 16; i += 1) {
@@ -88,8 +113,10 @@ function playIntro() {
       }
       gsap.to(cursor, { scale: 0.82, duration: 0.08, yoyo: true, repeat: 1 });
     })
+    .to({}, { duration: 0.25 })
     .to(menu, { opacity: 0, scale: 0.9, duration: 0.3 }, '<')
-    .to(cursor, { opacity: 0, duration: 0.2 }, '<')
+    .to(cursor, { opacity: 0, duration: 0.25 }, '<')
+    .to({}, { duration: 0.1 })
     .call(() => {
       hideMenu();
       startAnimation();
@@ -225,7 +252,6 @@ if (stage && cursor) {
     hideMenu();
   });
 
-  playIntro();
 }
 
 if (canvas) {
@@ -411,4 +437,3 @@ if (canvas) {
 }
 
 playIntro();
-

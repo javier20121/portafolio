@@ -196,7 +196,7 @@ export class CartelScroll {
     }
 
     // --- Escena, luces, render --------------------------------------------
-    this.scene.background = new THREE.Color(WALL)
+    this.scene.background = null
     this.scene.add(model)
     const wallZ = whole.min.z - 0.25
     this.shadowMats.forEach((material) => {
@@ -206,7 +206,8 @@ export class CartelScroll {
       this.scene.add(shadow)
     })
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' })
+    this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: 'high-performance' })
+    this.renderer.setClearColor(WALL, 0)
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
     this.renderer.toneMappingExposure = 0.48
     this.renderer.outputColorSpace = THREE.SRGBColorSpace
