@@ -1,69 +1,66 @@
 .skiper52 {
   display: flex;
-  width: max-content;
-  height: 100svh;
+  width: 100%;
+  height: 100%;
   align-items: center;
-  gap: 5vw;
-  padding-inline: 5vw;
+  justify-content: center;
+  overflow: hidden;
   background: #f5f4f3;
-  color: #171717;
+}
+
+.skiper52__gallery {
+  display: flex;
+  width: 100%;
+  max-width: 80rem;
+  height: min(88svh, 56rem);
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(2px, 0.35vw, 5px);
+  padding-inline: clamp(10px, 3vw, 48px);
 }
 
 .skiper52__card {
   position: relative;
-  flex: 0 0 90vw;
-  height: min(76svh, 44rem);
+  flex: 1 1 0;
+  min-width: 0;
   overflow: hidden;
-  border-radius: 1.5rem;
-  background: #dedbd8;
-  transform: scale(0.96);
-  transition: transform 350ms ease;
-}
-
-.skiper52__card.is-active {
-  transform: scale(1);
+  border-radius: 0;
+  background: transparent;
+  --card-focus: 0;
 }
 
 .skiper52__card img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 12%;
+  object-fit: contain;
+  object-position: center;
 }
 
-.skiper52__card::after {
+.skiper52__gradient {
   position: absolute;
+  z-index: 1;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent 38%);
-  content: '';
+  background: linear-gradient(to top, rgb(0 0 0 / 40%), transparent 38%);
+  opacity: var(--card-focus);
+  pointer-events: none;
 }
 
 .skiper52__code {
   position: absolute;
-  z-index: 1;
-  right: 1.5rem;
-  bottom: 1.5rem;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: clamp(1.25rem, 3vw, 2rem);
-  text-align: right;
+  z-index: 2;
+  right: 1rem;
+  bottom: 1rem;
+  color: rgb(255 255 255 / 72%);
+  font-size: clamp(0.75rem, 2vw, 1.25rem);
+  opacity: var(--card-focus);
+  pointer-events: none;
 }
 
 @media (max-width: 760px) {
-  .skiper52 {
-    gap: 5vw;
-    padding-inline: 5vw;
-  }
-
-  .skiper52__card {
-    flex-basis: 90vw;
-    height: min(68svh, 34rem);
-    border-radius: 1rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .skiper52__card {
-    transition: none;
+  .skiper52__gallery {
+    height: min(86svh, 52rem);
+    gap: 3px;
+    padding-inline: 0.75rem;
   }
 }

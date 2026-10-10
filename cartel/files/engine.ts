@@ -45,7 +45,7 @@ const WALL = 0x1d1d22
 /** Intensidad de emisión de los módulos LED cuando están al 100 %. */
 const LED_GAIN = 3.8
 /** Progreso del timeline (0..1) a partir del cual se encienden las luces. */
-const LIGHTS_AT = 0.75
+const LIGHTS_AT = 0.61
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t))
@@ -79,6 +79,7 @@ export class CartelScroll {
   private readonly camera = new THREE.PerspectiveCamera(30, 1, 5, 800)
   private readonly lightMap: THREE.Texture
   private readonly tl: gsap.core.Timeline
+  private readonly scrollToProgress: ReturnType<typeof gsap.quickTo>
   private readonly st?: ScrollTrigger
   private readonly ro: ResizeObserver
   private readonly io: IntersectionObserver
@@ -101,10 +102,14 @@ export class CartelScroll {
   private readonly s: State
   private readonly nLetters: number
   private readonly reduced: boolean
+  private readonly scrollState = { progress: 0 }
 
   private fit = 80
   private visible = true
   private lightsOn = false
+  private lightsReady = false
+  private exitProgress = 0
+  private exitStartProgress = 0
   private flicker: gsap.core.Tween | gsap.core.Timeline | null = null
   private stage = -1
   private cssCache = new Map<string, string>()
@@ -234,7 +239,16 @@ export class CartelScroll {
     this.resize()
     this.ro = new ResizeObserver(() => this.resize())
     this.ro.observe(stage)
-    this.io = new IntersectionObserver(([e]) => (this.visible = e.isIntersecting))
+    this.io = new IntersectionObserver(([entry]) => {
+      if (this.visible === entry.isIntersecting) return
+      this.visible = entry.isIntersecting
+      if (this.visible) {
+        gsap.ticker.add(this.tick)
+        this.tick()
+      } else {
+        gsap.ticker.remove(this.tick)
+      }
+    })
     this.io.observe(root)
 
     if (!this.reduced) {
@@ -253,11 +267,38 @@ export class CartelScroll {
       // El cierre conserva un giro leve para que el PVC siga mostrando espesor.
       tl.to(S.cam, { yaw: -0.36, pitch: 0.12, k: 0.98, tx: 0, duration: 6.6 }, 0)
       tl.to(S.cam, { yaw: 0.105, pitch: 0, k: 1, tx: 0, duration: 2.4, ease: 'power2.inOut' }, 6.6)
-    tl.to({}, { duration: 0.1 }, 9.9)
+    const exitAt = 13
+    const exitDuration = 4.2
+    tl.to({}, { duration: exitAt - 10 }, 10)
+    tl.to(S, { front: 0, duration: 1.25, ease: 'power2.inOut' }, exitAt)
+    for (let k = 0; k < this.nLetters; k++) {
+      tl.to(
+        S.borde,
+        { [k]: 0, duration: 1.25, ease: 'power1.inOut' } as gsap.TweenVars,
+        exitAt + (this.nLetters - 1 - k) * 0.1,
+      )
+    }
+    tl.to(S, { leds: 0, duration: 1.1, ease: 'power2.inOut' }, exitAt + 1.1)
+    tl.to(S, { fondo: 0, duration: 1, ease: 'power1.inOut' }, exitAt + 2.2)
+    tl.to(
+      S.cam,
+      { yaw: -0.5, pitch: 0.2, k: 0.92, tx: -6, duration: exitDuration, ease: 'power2.inOut' },
+      exitAt,
+    )
+    tl.to({}, { duration: 0.1 }, exitAt + exitDuration)
+    this.exitProgress = exitAt / tl.duration()
+    this.exitStartProgress = this.exitProgress
     this.tl = tl
 
+    const assembledAt = 10
+    this.scrollToProgress = gsap.quickTo(this.scrollState, 'progress', {
+      duration: 1.6,
+      ease: 'power3.out',
+    })
+
     if (this.reduced) {
-      tl.progress(1)
+      this.scrollState.progress = assembledAt / tl.duration()
+      tl.progress(this.scrollState.progress)
       this.setLights(true, true)
     } else {
       this.st = ScrollTrigger.create({
@@ -265,11 +306,12 @@ export class CartelScroll {
         start: 'top top',
         end: () => `+=${Math.round(window.innerHeight * (o.scrollLength ?? 4.5))}`,
         pin: o.pin ?? true,
-        scrub: 1.6,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        animation: tl,
-        onUpdate: (self) => root.classList.toggle('is-started', self.progress > 0.015),
+        onUpdate: (self) => {
+          this.scrollToProgress(self.progress)
+          root.classList.toggle('is-started', self.progress > 0.015)
+        },
       })
       void document.fonts?.ready.then(() => ScrollTrigger.refresh())
     }
@@ -297,6 +339,7 @@ export class CartelScroll {
   destroy() {
     gsap.ticker.remove(this.tick)
     this.st?.kill(true)
+    this.scrollToProgress.tween.kill()
     this.tl.kill()
     this.flicker?.kill()
     this.ro.disconnect()
@@ -324,6 +367,7 @@ export class CartelScroll {
 
   private setLights(on: boolean, instant = false) {
     this.lightsOn = on
+    this.lightsReady = on && instant
     this.flicker?.kill()
     const L = this.s.letters
     const n = this.nLetters
@@ -392,6 +436,10 @@ export class CartelScroll {
       }
     }
     gsap.to(this.ambient, { intensity: ambientIntensity, duration: 0.35, ease: 'power2.out' })
+    tl.eventCallback('onComplete', () => {
+      this.lightsReady = true
+      this.exitStartProgress = Math.max(this.exitProgress, this.scrollState.progress)
+    })
     this.flicker = tl
   }
 
@@ -399,6 +447,20 @@ export class CartelScroll {
 
   private readonly tick = () => {
     if (!this.visible) return
+    let timelineProgress = this.scrollState.progress
+    if (this.scrollState.progress >= this.exitProgress) {
+      if (!this.lightsReady) {
+        timelineProgress = this.exitProgress
+      } else {
+        const availableScroll = 1 - this.exitStartProgress
+        const exit =
+          availableScroll > 0
+            ? clamp01((this.scrollState.progress - this.exitStartProgress) / availableScroll)
+            : 0
+        timelineProgress = this.exitProgress + exit * (1 - this.exitProgress)
+      }
+    }
+    this.tl.progress(timelineProgress)
     const p = this.tl.progress()
     if (!this.lightsOn && p >= LIGHTS_AT) this.setLights(true)
     else if (this.lightsOn && p < LIGHTS_AT - 0.04) this.setLights(false)

@@ -5,6 +5,8 @@ import './cartel.css'
 export interface CartelSectionProps {
   /** URL del .glb (por ejemplo "/cartel.glb") o su contenido. */
   src: string | ArrayBuffer
+  /** Clase opcional para integrar la sección en un layout. */
+  className?: string
   /** Largo del scroll en alturas de pantalla. */
   scrollLength?: number
   /** Desactiva el pin interno al anidar el cartel en una escena fijada. */
@@ -13,7 +15,13 @@ export interface CartelSectionProps {
   onReady?: (engine: CartelScroll) => void
 }
 
-export default function CartelSection({ src, scrollLength = 4.5, pin = true, onReady }: CartelSectionProps) {
+export default function CartelSection({
+  src,
+  className,
+  scrollLength = 4.5,
+  pin = true,
+  onReady,
+}: CartelSectionProps) {
   const rootRef = useRef<HTMLElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const [failed, setFailed] = useState(false)
@@ -47,7 +55,11 @@ export default function CartelSection({ src, scrollLength = 4.5, pin = true, onR
   }, [src, scrollLength, pin])
 
   return (
-    <section ref={rootRef} className="cartel" aria-labelledby="cartel-title">
+    <section
+      ref={rootRef}
+      className={className ? `cartel ${className}` : 'cartel'}
+      aria-labelledby="cartel-title"
+    >
       <h2 id="cartel-title" className="cartel__sr">
         Cómo se fabrica el cartel CAMILA
       </h2>

@@ -13,4 +13,8 @@ import { CartelSection } from './cartel'
 
 Ajustes rápidos en `engine.ts`: `LIGHTS_AT` (cuándo enciende), `LED_GAIN` (brillo),
 timeline (tiempos de cada etapa) y `setLights` (secuencia del parpadeo).
+
+El scroll arma el cartel, espera a que terminen de encenderse las luces y luego
+lo desarma con el mismo timeline. El render 3D se pausa mientras la sección está
+fuera de pantalla.
 Textos de las etapas: `stages.ts`.
