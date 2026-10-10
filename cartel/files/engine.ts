@@ -234,6 +234,15 @@ export class CartelScroll {
     this.composer = new EffectComposer(this.renderer, target)
     this.composer.addPass(new RenderPass(this.scene, this.camera))
     this.bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.75, 0.28, 0.72)
+    // Suma el bloom al color, pero conserva el alfa transparente sobre el fondo de página.
+    this.bloom.blendMaterial.blending = THREE.CustomBlending
+    this.bloom.blendMaterial.blendSrc = THREE.OneFactor
+    this.bloom.blendMaterial.blendDst = THREE.OneFactor
+    this.bloom.blendMaterial.blendEquation = THREE.AddEquation
+    this.bloom.blendMaterial.blendSrcAlpha = THREE.ZeroFactor
+    this.bloom.blendMaterial.blendDstAlpha = THREE.OneFactor
+    this.bloom.blendMaterial.blendEquationAlpha = THREE.AddEquation
+    this.bloom.blendMaterial.needsUpdate = true
     this.composer.addPass(this.bloom)
     this.composer.addPass(new OutputPass())
 
