@@ -530,7 +530,7 @@ export class CartelScroll {
     this.css('--p-bordes', bordeAvg)
     this.css('--p-frente', s.front)
     this.css('--p-luz', light)
-    this.css('--glow', light)
+    this.css('--glow', light * s.fondo)
 
     const stage = this.lightsOn ? 3 : s.front > 0.02 ? 2 : bordeAvg > 0.01 ? 1 : 0
     if (stage !== this.stage) {

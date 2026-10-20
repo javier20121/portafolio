@@ -2,6 +2,7 @@
   --fg: #f3f0e9;
   --accent: #ff9c70;
   --accent-cool: #a8ddd0;
+  --atmosphere-base: #70009b;
 }
 
 * {
@@ -15,24 +16,68 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: clip;
-  background: #050505;
+  background: var(--atmosphere-base);
   color: var(--fg);
   font-family: 'Schibsted Grotesk', sans-serif;
 }
 
-body::before {
+#atmosphere,
+.atmosphere-grain,
+.atmosphere-vignette {
   position: fixed;
-  z-index: 0;
   inset: 0;
-  background: url('/img/fondo.jpeg') center / cover no-repeat;
-  content: '';
+  z-index: 0;
   pointer-events: none;
+}
+
+#atmosphere {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--atmosphere-base);
+  transform: translateZ(0);
+}
+
+.atmosphere-grain {
+  inset: -24px;
+  opacity: 0;
+  background-repeat: repeat;
+  background-size: 128px 128px;
+  mix-blend-mode: overlay;
+  animation: grain-shift 0.4s steps(5) infinite;
+  transition: opacity 1.1s ease;
+}
+
+.atmosphere-grain.is-on {
+  opacity: 0.1;
+}
+
+.atmosphere-vignette {
+  background: radial-gradient(ellipse 72% 62% at 50% 44%, transparent 38%, rgba(23, 0, 34, 0.38) 100%);
+}
+
+@keyframes grain-shift {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-1px, 1px); }
+  40% { transform: translate(1px, -1px); }
+  60% { transform: translate(-1px, -1px); }
+  80% { transform: translate(1px, 1px); }
+  100% { transform: translate(0, 0); }
 }
 
 main {
   position: relative;
   z-index: 1;
   width: 100%;
+}
+
+#stage::after {
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+  background: radial-gradient(ellipse 58% 42% at 50% 50%, rgba(23, 0, 34, 0.2), transparent 72%);
+  content: '';
+  pointer-events: none;
 }
 
 #root {
@@ -59,7 +104,7 @@ main {
   top: 50%;
   left: 50%;
   display: flex;
-  gap: 6px;
+  gap: 10px;
   transform: translate(-50%, -50%);
   color: var(--fg);
   font-family: 'Anton', sans-serif;
@@ -230,6 +275,11 @@ main {
   .ripple {
     display: none !important;
   }
+
+  .atmosphere-grain {
+    animation: none !important;
+    opacity: 0.1;
+  }
 }
 
 @media (max-width: 760px) {
@@ -240,7 +290,7 @@ main {
 
 @media (max-width: 520px) {
   #word {
-    gap: 2px;
+    gap: 5px;
     font-size: 3.2rem;
   }
 }

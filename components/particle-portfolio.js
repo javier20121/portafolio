@@ -10,6 +10,7 @@ let animationUnlocked = false;
 function startAnimation() {
   if (!canvas || animationUnlocked) return;
   animationUnlocked = true;
+  window.dispatchEvent(new Event('portfolio:start-particles'));
 
   gsap.to(wordEl, {
     opacity: 0,
@@ -259,14 +260,13 @@ if (canvas) {
     const pointer = { x: -1000, y: -1000, targetX: -1000, targetY: -1000, active: false };
     let particles = [];
     let animationFrame;
+    let animationRunning = false;
     let bounds;
     let resizeObserver;
-    let animationStartTime = 0;
 
     const getSettings = () => ({
-      gap: window.innerWidth < 760 ? 3.5 : 4.8,
-      radius: window.innerWidth < 760 ? 3.2 : 4.4,
-      fontSize: window.innerWidth < 520 ? 50 : window.innerWidth < 760 ? 72 : 120,
+      gap: window.innerWidth < 760 ? 4 : 5.2,
+      radius: window.innerWidth < 760 ? 5 : 6,
     });
 
     const colorStops = [
@@ -294,7 +294,6 @@ if (canvas) {
         canvas.height = bounds.height * scale;
         context.setTransform(scale, 0, 0, scale, 0, 0);
         context.clearRect(0, 0, bounds.width, bounds.height);
-        animationStartTime = 0;
 
         const textCanvas = document.createElement('canvas');
         textCanvas.width = canvas.width;
@@ -302,17 +301,40 @@ if (canvas) {
         const textContext = textCanvas.getContext('2d', { willReadFrequently: true });
         textContext.setTransform(scale, 0, 0, scale, 0, 0);
         textContext.clearRect(0, 0, bounds.width, bounds.height);
-        textContext.font = `${settings.fontSize}px Anton, sans-serif`;
+        const word = 'PORTAFOLIO';
+        const characters = Array.from(word);
+        const baseFontSize = 100;
+        const baseLetterSpacing = 4.5;
+        textContext.font = `${baseFontSize}px Anton, sans-serif`;
         textContext.textAlign = 'center';
         textContext.textBaseline = 'middle';
         textContext.fillStyle = '#ffffff';
-        textContext.fillText('PORTAFOLIO', bounds.width / 2, bounds.height / 2);
+        const baseTextWidth = characters.reduce(
+          (width, character) => width + textContext.measureText(character).width,
+          baseLetterSpacing * (characters.length - 1),
+        );
+        const fontSize = Math.min(
+          260,
+          bounds.height * 0.3,
+          bounds.width * 0.82 * baseFontSize / baseTextWidth,
+        );
+        const letterSpacing = baseLetterSpacing * fontSize / baseFontSize;
+        textContext.font = `${fontSize}px Anton, sans-serif`;
+        const characterWidths = characters.map((character) => textContext.measureText(character).width);
+        const textWidth = characterWidths.reduce(
+          (width, characterWidth) => width + characterWidth,
+          letterSpacing * (characters.length - 1),
+        );
+        const startX = (bounds.width - textWidth) / 2;
+        let characterX = startX;
+        characters.forEach((character, index) => {
+          textContext.fillText(character, characterX + characterWidths[index] / 2, bounds.height / 2);
+          characterX += characterWidths[index] + letterSpacing;
+        });
 
-        const textWidth = textContext.measureText('PORTAFOLIO').width;
-        const textX = bounds.width / 2;
-        const startX = Math.max(0, textX - textWidth / 2);
         const image = textContext.getImageData(0, 0, textCanvas.width, textCanvas.height);
         const nextParticles = [];
+        const bubbleSprites = new Map();
 
         for (let y = 0; y < bounds.height; y += settings.gap) {
             for (let x = Math.floor(startX); x < Math.min(bounds.width, startX + textWidth); x += settings.gap) {
@@ -322,15 +344,54 @@ if (canvas) {
                 if (image.data[pixel + 3] > 100) {
                     const targetX = x + (Math.random() - 0.5) * settings.gap * 0.5;
                     const targetY = y + (Math.random() - 0.5) * settings.gap * 0.5;
+                    const radius = Math.round(settings.radius * (0.7 + Math.random() * 0.8) * 2) / 2;
+                    const color = getParticleColor(Math.round(((targetX - startX) / textWidth) * 64) / 64);
+                    const spriteKey = `${color}:${radius}`;
+                    let sprite = bubbleSprites.get(spriteKey);
+                    if (!sprite) {
+                        const padding = 2;
+                        const size = (radius + padding) * 2;
+                        const bubbleCanvas = document.createElement('canvas');
+                        bubbleCanvas.width = Math.ceil(size * scale);
+                        bubbleCanvas.height = Math.ceil(size * scale);
+                        const bubbleContext = bubbleCanvas.getContext('2d');
+                        bubbleContext.setTransform(scale, 0, 0, scale, 0, 0);
+                        const center = size / 2;
+
+                        bubbleContext.beginPath();
+                        bubbleContext.fillStyle = color;
+                        bubbleContext.globalAlpha = 0.24;
+                        bubbleContext.arc(center, center, radius, 0, Math.PI * 2);
+                        bubbleContext.fill();
+
+                        bubbleContext.globalAlpha = 0.82;
+                        bubbleContext.strokeStyle = '#fff';
+                        bubbleContext.lineWidth = Math.max(1, radius * 0.14);
+                        bubbleContext.stroke();
+
+                        bubbleContext.beginPath();
+                        bubbleContext.fillStyle = '#fff';
+                        bubbleContext.arc(
+                          center - radius * 0.32,
+                          center - radius * 0.34,
+                          Math.max(0.8, radius * 0.13),
+                          0,
+                          Math.PI * 2,
+                        );
+                        bubbleContext.fill();
+                        bubbleContext.globalAlpha = 1;
+                        sprite = { canvas: bubbleCanvas, size };
+                        bubbleSprites.set(spriteKey, sprite);
+                    }
                     nextParticles.push({
-                        x: targetX + (Math.random() - 0.5) * 30,
-                        y: bounds.height + 50 + Math.random() * 220,
+                        x: targetX + (Math.random() - 0.5) * 12,
+                        y: bounds.height + settings.radius + 8 + Math.random() * 80,
                         ox: targetX,
                         oy: targetY,
                         vx: 0,
                         vy: 0,
-                        radius: settings.radius * (0.7 + Math.random() * 0.8),
-                        color: getParticleColor((targetX - startX) / textWidth),
+                        color,
+                        sprite,
                     });
                 }
             }
@@ -345,26 +406,17 @@ if (canvas) {
     };
 
     const draw = (timestamp) => {
-        if (!bounds) {
+        if (!bounds || !animationUnlocked) {
+            animationRunning = false;
             return;
-        }
-
-        if (!animationStartTime) {
-            animationStartTime = timestamp;
         }
 
         context.clearRect(0, 0, bounds.width, bounds.height);
 
-        if (!animationUnlocked) {
-            if (!reduced) {
-                animationFrame = requestAnimationFrame(draw);
-            }
-            return;
-        }
-
         const influence = 220;
         pointer.x += (pointer.targetX - pointer.x) * 0.15;
         pointer.y += (pointer.targetY - pointer.y) * 0.15;
+        let unsettled = false;
 
         particles.forEach((particle) => {
           if (reduced) {
@@ -388,26 +440,50 @@ if (canvas) {
             particle.vx += restoreX;
             particle.vy += restoreY;
 
-            particle.vx += Math.sin((particle.y + particle.x) * 0.02) * 0.02;
-            particle.vy += Math.cos((particle.x - particle.y) * 0.02) * 0.02;
-
             particle.vx *= 0.82;
             particle.vy *= 0.82;
             particle.x += particle.vx;
             particle.y += particle.vy;
+            if (
+              Math.abs(particle.ox - particle.x) < 0.25
+              && Math.abs(particle.oy - particle.y) < 0.25
+              && Math.abs(particle.vx) < 0.025
+              && Math.abs(particle.vy) < 0.025
+            ) {
+              particle.x = particle.ox;
+              particle.y = particle.oy;
+              particle.vx = 0;
+              particle.vy = 0;
+            } else {
+              unsettled = true;
+            }
 
             const rise = Math.max(0, (particle.oy - particle.y) * 0.2);
             const alpha = Math.min(1, 0.35 + rise / 80);
 
-            context.beginPath();
-            context.fillStyle = particle.color.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
-            context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-            context.fill();
+            context.globalAlpha = alpha;
+            context.drawImage(
+              particle.sprite.canvas,
+              particle.x - particle.sprite.size / 2,
+              particle.y - particle.sprite.size / 2,
+              particle.sprite.size,
+              particle.sprite.size,
+            );
         });
+        context.globalAlpha = 1;
+        pointer.active = false;
 
-        if (!reduced) {
+        if (!reduced && unsettled) {
             animationFrame = requestAnimationFrame(draw);
+        } else {
+            animationRunning = false;
         }
+    };
+
+    const scheduleDraw = () => {
+      if (reduced || animationRunning || !animationUnlocked) return;
+      animationRunning = true;
+      animationFrame = requestAnimationFrame(draw);
     };
 
     const updatePointer = (event) => {
@@ -415,10 +491,14 @@ if (canvas) {
         pointer.targetX = point.clientX - bounds.left;
         pointer.targetY = point.clientY - bounds.top;
         pointer.active = true;
+        scheduleDraw();
     };
 
     window.addEventListener('portfolio:draw-static', () => {
       if (reduced) draw(performance.now());
+    });
+    window.addEventListener('portfolio:start-particles', () => {
+      scheduleDraw();
     });
 
     canvas.addEventListener('mousemove', updatePointer);
@@ -426,13 +506,17 @@ if (canvas) {
     canvas.addEventListener('mouseleave', () => { pointer.active = false; });
     canvas.addEventListener('touchend', () => { pointer.active = false; });
 
-    resizeObserver = new ResizeObserver(createParticles);
+    resizeObserver = new ResizeObserver(() => {
+      createParticles();
+      if (reduced && animationUnlocked) draw(performance.now());
+      else scheduleDraw();
+    });
     resizeObserver.observe(canvas);
     createParticles();
-    if (!reduced) draw(performance.now());
     document.fonts?.ready.then(() => {
       createParticles();
       if (reduced && animationUnlocked) draw(performance.now());
+      else scheduleDraw();
     });
 }
 
