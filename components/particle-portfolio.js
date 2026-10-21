@@ -121,6 +121,13 @@ function playIntro() {
     .call(() => {
       hideMenu();
       startAnimation();
+      // Forzar la visibilidad del root de React inmediatamente
+      const root = document.getElementById('root');
+      if (root) {
+        root.style.opacity = '1';
+        root.style.visibility = 'visible';
+        root.style.display = 'block';
+      }
     });
 }
 
