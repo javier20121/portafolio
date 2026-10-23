@@ -1,8 +1,20 @@
 @import "tailwindcss";
 
+/* ── Tailwind v4: escanear archivos fuera de src ── */
+@source "./main.tsx";
+@source "./components/**/*.{tsx,jsx}";
+@source "./cartel/files/**/*.{tsx,jsx}";
+@source "./index.html";
+
+/* ════════════════════════════════════════════════════
+   Variables globales
+   ════════════════════════════════════════════════════ */
 :root {
-  --bg-deep: #0a0a0a;
-  --accent-lime: #bef264; /* lime-400 */
+  --bg-deep: #0e0f0c;
+  --fg: #f3f0e9;
+  --accent: #ff9c70;
+  --accent-cool: #a8ddd0;
+  --accent-lime: #bef264;
   --fg-white: #ffffff;
   --zinc-light: #d4d4d8;
 }
@@ -19,83 +31,289 @@ body {
   padding: 0;
   overflow-x: hidden;
   background-color: var(--bg-deep);
-  color: var(--fg-white);
+  color: var(--fg);
   font-family: 'Schibsted Grotesk', sans-serif;
 }
 
-/* Capa de Grano Cinematográfico - Omnipresente */
-.grain-overlay {
+main {
+  width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-cool);
+  outline-offset: 5px;
+}
+
+/* ════════════════════════════════════════════════════
+   Atmosphere (fondo canvas + grain + vignette)
+   ════════════════════════════════════════════════════ */
+#atmosphere {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 50;
-  opacity: 0.04;
-  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
-  animation: grain-shift 8s steps(10) infinite;
+  z-index: -5;
 }
 
-@keyframes grain-shift {
-  0%, 100% { transform: translate(0, 0); }
-  10% { transform: translate(-5%, -5%); }
-  20% { transform: translate(-10%, 5%); }
-  30% { transform: translate(5%, -10%); }
-  40% { transform: translate(-5%, 10%); }
-  50% { transform: translate(-10%, -5%); }
-  60% { transform: translate(10%, 5%); }
-  70% { transform: translate(5%, 10%); }
-  80% { transform: translate(-5%, -10%); }
-  90% { transform: translate(10%, -5%); }
-}
-
-/* Luz de ambiente radial (Spotlight) */
-.ambient-glow {
+#hero-canvas {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-  z-index: -1;
+  z-index: -100;
+}
+
+.atmosphere-grain {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  background-repeat: repeat;
+  background-size: 128px 128px;
+  transition: opacity 1.2s ease;
+}
+
+.atmosphere-grain.is-on {
+  opacity: 0.06;
+}
+
+.atmosphere-vignette {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
   background: radial-gradient(
-    circle at 50% 50%,
-    rgba(190, 242, 100, 0.06) 0%,
-    rgba(10, 10, 10, 0) 70%
-  );
+    ellipse 80% 70% at 50% 50%,
+    transparent 40%,
+    rgba(173, 11, 11, 0.45)5) 100%
+  ;
 }
 
-/* Reset de root para evitar paddings extraños y asegurar visibilidad */
-#root {
-  padding: 0 !important;
-  position: relative;
-  z-index: 100;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* Asegurar que los lienzos de fondo no bloqueen el contenido */
-#atmosphere, #particles, .atmosphere-grain, .atmosphere-vignette {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-}
-
+/* ════════════════════════════════════════════════════
+   Hero — #stage (word + particles + cursor + menu)
+   ════════════════════════════════════════════════════ */
 #stage {
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  cursor: none;
   z-index: 5;
-  pointer-events: none;
+  background: transparent; /* Aseguramos que sea transparente */
 }
 
-#cursor, #menu, #word {
+#word {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  gap: 6px;
+  transform: translate(-50%, -50%);
+  color: var(--fg);
+  font-family: 'Anton', sans-serif;
+  font-size: 7.5rem;
+  user-select: none;
+  z-index: 10;
+}
+
+#word span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+#particles {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: transparent !important; /* Forzamos transparencia total */
+  opacity: 0;
+  z-index: 5;
+}
+
+#cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  transform: translate(-50%, -50%) scale(0.8);
+  color: var(--fg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 60;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+}
+
+#cursor.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+#cursor svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#cursor.pressed {
+  transform: translate(-50%, -50%) scale(0.72);
+}
+
+/* ── Ripple & Bubble effects ── */
+.ripple,
+.bubble {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.ripple {
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%) scale(0);
+  border: 2px solid var(--fg);
+  opacity: 0.9;
+  animation: ripple-pop 0.6s ease forwards;
+}
+
+.bubble {
+  width: var(--size, 16px);
+  height: var(--size, 16px);
+  transform: translate(-50%, -50%) scale(0.3);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.12) 30%, rgba(255, 255, 255, 0) 70%);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.14);
+  opacity: 0;
+  animation: bubble-pop 0.9s ease forwards;
+}
+
+/* ── Context Menu ── */
+#menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 190px;
+  transform: translate(-12px, -10px) scale(0.85);
+  transform-origin: top left;
+  padding: 6px;
+  border: 1px solid rgba(210, 210, 210, 0.9);
+  border-radius: 4px;
+  background: rgba(236, 236, 236, 0.96);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.42);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 55;
+  font-size: 13px;
+}
+
+#menu.visible {
+  transform: translate(0, 0) scale(1);
+  opacity: 1;
   pointer-events: auto;
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #8f8f8f;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  transition: background 0.18s ease, transform 0.12s ease, color 0.18s ease;
+}
+
+.menu-item.enabled {
+  margin-top: 2px;
+  background: #111;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.menu-item.enabled.hovered {
+  background: var(--accent);
+  color: #111;
+}
+
+.menu-item.enabled.pressed {
+  transform: scale(0.96);
+}
+
+/* ── Keyframes ── */
+@keyframes ripple-pop {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0.9; }
+  60% { opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(2.8); opacity: 0; }
+}
+
+@keyframes bubble-pop {
+  0% { transform: translate(-50%, -50%) scale(0.25); opacity: 0; }
+  18% { opacity: 0.9; }
+  100% { transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, 0px))) scale(1.8); opacity: 0; }
+}
+
+/* ════════════════════════════════════════════════════
+   React content (#root) — Cartel + Gallery
+   ════════════════════════════════════════════════════ */
+#root {
+  position: relative;
+  z-index: 10;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+
+  #word span {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  #cursor,
+  #menu,
+  .ripple {
+    display: none !important;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 760px) {
+  #word {
+    font-size: 4.5rem;
+  }
+}
+
+@media (max-width: 520px) {
+  #word {
+    gap: 2px;
+    font-size: 3.2rem;
+  }
 }

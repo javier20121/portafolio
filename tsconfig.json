@@ -16,5 +16,5 @@
     "strict": true,
     "types": ["vite/client"]
   },
-  "include": ["main.tsx", "vite.config.ts", "cartel/files/**/*.ts", "cartel/files/**/*.tsx"]
+  "include": ["main.tsx", "vite.config.ts", "cartel/files/**/*.ts", "cartel/files/**/*.tsx", "components/**/*.ts", "components/**/*.tsx"]
 }
