@@ -147,7 +147,11 @@ export function initHeroBackground() {
     }
 
     void main() {
-      vec2 st = (gl_FragCoord.xy - 0.5 * uResolution) / min(uResolution.x, uResolution.y);
+      vec2 uv = gl_FragCoord.xy / uResolution;
+      float aspect = uResolution.x / uResolution.y;
+      vec2 st = uv - 0.5;
+      st.x *= aspect;
+      st *= 3.0; // Escala moderada para que el ruido sea visible y suave
 
 
       float f = field(st, uTime);
