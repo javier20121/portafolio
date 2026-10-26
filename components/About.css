@@ -1,0 +1,334 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@600&family=Instrument+Serif:ital@1&display=swap');
+
+/* ════════════════════════════════════════════════════
+   About — sin fondo propio: se ve el canvas fijo de atrás
+   ════════════════════════════════════════════════════ */
+.about {
+  --ab-pink: #fa1b8c;
+  --ab-lilac: #d8c7f4;
+  --ab-ink: #2a1040;
+  --ab-paper: #f7f3ee;
+
+  position: relative;
+  width: 100%;
+  color: #fff;
+  background: transparent;
+}
+
+.about__stage {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  column-gap: clamp(2rem, 5vw, 6rem);
+  height: 100svh;
+  padding: clamp(1.5rem, 4svh, 3rem) clamp(1.5rem, 6vw, 6rem);
+}
+
+/* ── Título ── */
+.about__title {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  font-size: clamp(3.5rem, min(15svh, 13vw), 10rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.about__ch-mask {
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.16em 0.02em 0.04em;
+  margin: -0.16em -0.02em -0.04em;
+  vertical-align: top;
+}
+
+.about__ch {
+  display: inline-block;
+  will-change: transform;
+}
+
+.about__ch--dot {
+  color: var(--ab-pink);
+}
+
+/* ── Polaroid ── */
+.about__left {
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+
+.polaroid {
+  position: relative;
+  margin: 0;
+  width: min(100%, 22rem, 42svh);
+}
+
+.polaroid__sheet {
+  position: absolute;
+  inset: 0;
+  background: #ece5dc;
+  box-shadow: 0 18px 40px -18px rgba(20, 0, 40, 0.6);
+}
+
+.polaroid__sheet--b { transform: rotate(-9deg); }
+.polaroid__sheet--c { transform: rotate(6deg); background: #e4dcd1; }
+
+.polaroid__card {
+  position: relative;
+  padding: 0.9rem 0.9rem 3.2rem;
+  background: var(--ab-paper);
+  transform: rotate(-3deg);
+  box-shadow: 0 30px 60px -20px rgba(20, 0, 40, 0.6);
+}
+
+.polaroid__photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #1b0a28;
+}
+
+.polaroid__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.polaroid__ph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: 'Anton', sans-serif;
+  font-size: 5rem;
+  color: rgba(255, 255, 255, 0.92);
+  background:
+    radial-gradient(circle at 30% 25%, #ff5fb6, transparent 55%),
+    linear-gradient(160deg, #8a1fd0, #4a0575);
+}
+
+.polaroid__caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.7rem;
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: #3a2a4a;
+}
+
+.polaroid__tape {
+  position: absolute;
+  top: -1rem;
+  left: 50%;
+  width: 6.5rem;
+  height: 2rem;
+  margin-left: -3.25rem;
+  background: rgba(250, 27, 140, 0.6);
+  transform: rotate(-4deg);
+  z-index: 2;
+}
+
+/* ── Columna derecha ── */
+.about__right {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1rem, 3svh, 2.2rem);
+  min-height: 0;
+}
+
+.about__line {
+  display: block;
+  overflow: hidden;
+  padding: 0.1em 0;
+  margin: -0.1em 0;
+}
+
+.about__line-in {
+  display: block;
+  will-change: transform;
+}
+
+.about__name {
+  margin: 0;
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 7svh, 4.2rem);
+  line-height: 1;
+}
+
+.about__role {
+  margin: 0.15em 0 0;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.8rem, 5.5svh, 3.2rem);
+  line-height: 1.05;
+  color: var(--ab-lilac);
+}
+
+.about__text {
+  margin: 0;
+  max-width: 50ch;
+  font-size: clamp(0.95rem, 2.1svh, 1.2rem);
+  line-height: 1.6;
+}
+
+/* ── Habilidades + nota de contacto ── */
+.about__bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem 2rem;
+}
+
+.about__skills-title {
+  margin: 0 0 0.8rem;
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.2rem, 3svh, 1.7rem);
+  line-height: 1;
+}
+
+.about__tiles {
+  display: flex;
+  gap: clamp(0.6rem, 1.4vw, 1.2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about__tile {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  will-change: transform;
+}
+
+.about__tile-icon {
+  display: grid;
+  place-items: center;
+  width: clamp(3rem, 8svh, 4.6rem);
+  aspect-ratio: 1;
+  border-radius: 22%;
+  background: var(--tile-bg);
+  color: var(--tile-fg);
+  font-weight: 700;
+  font-size: clamp(1.2rem, 3.4svh, 1.9rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.55);
+}
+
+.about__tile-label {
+  white-space: nowrap;
+}
+
+.about__note {
+  min-width: min(100%, 17rem);
+  padding: 1rem 1.4rem 1.2rem;
+  background: var(--ab-lilac);
+  color: var(--ab-ink);
+  border-radius: 2px;
+  transform: rotate(3deg);
+  box-shadow: 0 18px 30px -14px rgba(20, 0, 40, 0.65);
+  will-change: transform;
+}
+
+.about__note h3 {
+  margin: 0 0 0.6rem;
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.6rem, 4svh, 2.2rem);
+  line-height: 1;
+}
+
+.about__note ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about__note a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.about__note a:hover span {
+  text-decoration: underline;
+}
+
+/* ════════════════════════════════════════════════════
+   Mobile: sin pin, columnas apiladas
+   ════════════════════════════════════════════════════ */
+@media (max-width: 899px) {
+  .about__stage {
+    display: block;
+    height: auto;
+    padding: 4rem 1.5rem 5rem;
+  }
+
+  .about__title {
+    font-size: clamp(3.5rem, 20vw, 6rem);
+  }
+
+  .about__left {
+    margin: 3rem 0 3rem;
+  }
+
+  .polaroid {
+    width: min(76vw, 20rem);
+  }
+
+  .about__right {
+    gap: 1.6rem;
+  }
+
+  .about__name {
+    font-size: 2.6rem;
+  }
+
+  .about__role {
+    font-size: 2rem;
+  }
+
+  .about__text {
+    font-size: 1.05rem;
+  }
+
+  .about__tile-icon {
+    width: 3.6rem;
+    font-size: 1.5rem;
+  }
+
+  .about__tiles {
+    flex-wrap: wrap;
+  }
+
+  .about__bottom {
+    gap: 2.5rem;
+  }
+
+  .about__note {
+    width: 100%;
+  }
+}

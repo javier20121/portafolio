@@ -1,0 +1,41 @@
+# MEMORIA DEL PROYECTO - PORTAFOLIO
+
+## 1. ESTRUCTURA DE ARCHIVOS
+El proyecto es una aplicación de React con Vite y TypeScript, enfocada en experiencias visuales avanzadas (Three.js, GSAP, Lenis).
+
+### Directorios Principales:
+- `/components`: Componentes de UI y lógica visual.
+    - `hero-background.js`: Fondo interactivo WebGL con shaders (curvas topográficas).
+    - `GallerySection.tsx` / `.css`: Sección de galería de imágenes.
+    - `About.tsx` / `.css`: Sección "Sobre mí" (en desarrollo).
+    - `skiper52.tsx` / `.css`: Otros componentes visuales.
+- `/cartel`: Implementación de una escena 3D compleja.
+    - `files/CartelSection.tsx`: Componente principal del cartel.
+    - `files/engine.ts`, `geometry.ts`, `materials.ts`, `stages.ts`: Lógica modular de Three.js para el modelo 3D.
+- `/img`: Activos de imagen y brandboards.
+- `/public`: Activos estáticos (como `cartel.glb`).
+
+### Archivos Raíz:
+- `main.tsx`: Punto de entrada. Configura Lenis (smooth scroll) y GSAP ScrollTrigger. Gestiona el orden de las secciones.
+- `style.css`: Estilos globales, variables de color y efectos de atmósfera (viñeta roja `.atmosphere-vignette`).
+- `index.html`: Estructura base con el canvas `#hero-canvas`.
+- `vite.config.ts`, `tsconfig.json`, `package.json`: Configuración del entorno.
+
+## 2. LÓGICA DE EJECUCIÓN
+- **Scroll**: Usa `Lenis` para un desplazamiento suave y `GSAP ScrollTrigger` para animaciones basadas en el scroll.
+- **Fondo Hero**: `initHeroBackground()` crea un canvas fijo que renderiza un shader de ruido Simplex. Es independiente de React (se inyecta en el DOM).
+- **Sección Cartel**: Utiliza un `CartelWrapper` en `main.tsx` para hacer "pinning" (bloquear la pantalla) mientras el usuario scrollea y el modelo 3D evoluciona.
+
+## 3. ESTADO ACTUAL Y CAMBIOS RECIENTES
+- **Fondo Hero**: Se tuvo un problema de "óvalo negro/rojo" en Vercel. Se identificó que es una combinación de la viñeta roja de `style.css` y un colapso del shader por resolución/precisión. El código fue restaurado a su versión original estable.
+- **Orden de Secciones**: El usuario solicitó reorganizar las secciones:
+    1. Hero/Inicio.
+    2. About (Sección nueva).
+    3. Cartel (Sección 3D).
+    4. Galería.
+- **Archivos About**: Ya existen `components/About.tsx` y `components/About.css`.
+
+## 4. PUNTOS CRÍTICOS PARA FUTUROS CAMBIOS
+- Cualquier cambio en el orden de secciones debe hacerse en `main.tsx`.
+- El fondo `hero-background.js` es muy sensible a cambios en la resolución del shader; evitar tocar la matemática del `fragmentShader` sin pruebas exhaustivas en producción.
+- El cartel depende de la ruta `/cartel.glb` en la carpeta pública.

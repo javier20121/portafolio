@@ -1,5 +1,6 @@
 import { StrictMode, useRef, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
+import About from './components/About.tsx'
 import CartelSection from './cartel/files/CartelSection.tsx'
 import GallerySection from './components/GallerySection.tsx'
 import Lenis from 'lenis'
@@ -48,6 +49,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <div className="relative w-full h-full">
       <main className="relative z-10">
+        <About photoSrc="/cami.jpeg" />
         <CartelWrapper>
           <CartelSection src="/cartel.glb" scrollLength={4.5} pin={false} />
         </CartelWrapper>
