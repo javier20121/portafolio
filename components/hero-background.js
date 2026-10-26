@@ -147,8 +147,8 @@ export function initHeroBackground() {
     }
 
     void main() {
-      float m = min(uResolution.x, uResolution.y);
-      vec2 st = (gl_FragCoord.xy - 0.5 * uResolution) / m;
+      vec2 st = (gl_FragCoord.xy - 0.5 * uResolution) / min(uResolution.x, uResolution.y);
+
 
       float f = field(st, uTime);
 
