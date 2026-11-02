@@ -6,6 +6,7 @@ El proyecto es una aplicación de React con Vite y TypeScript, enfocada en exper
 ### Directorios Principales:
 - `/components`: Componentes de UI y lógica visual.
     - `hero-background.js`: Fondo interactivo WebGL con shaders (curvas topográficas).
+    - `EnlaceSection.tsx` / `.css`: Caso de estudio interactivo del Brandboard ENLACE (identidad, paleta, tipografías, stickers, mockups).
     - `GallerySection.tsx` / `.css`: Sección de galería de imágenes.
     - `About.tsx` / `.css`: Sección "Sobre mí" (en desarrollo).
     - `skiper52.tsx` / `.css`: Otros componentes visuales.
@@ -28,12 +29,15 @@ El proyecto es una aplicación de React con Vite y TypeScript, enfocada en exper
 
 ## 3. ESTADO ACTUAL Y CAMBIOS RECIENTES
 - **Fondo Hero**: Se tuvo un problema de "óvalo negro/rojo" en Vercel. Se identificó que es una combinación de la viñeta roja de `style.css` y un colapso del shader por resolución/precisión. El código fue restaurado a su versión original estable.
-- **Orden de Secciones**: El usuario solicitó reorganizar las secciones:
-    1. Hero/Inicio.
-    2. About (Sección nueva).
-    3. Cartel (Sección 3D).
-    4. Galería.
-- **Archivos About**: Ya existen `components/About.tsx` y `components/About.css`.
+- **Orden de Secciones**:
+  1. Hero/Inicio (Canvas WebGL + Partículas).
+  2. About (Sección sobre mí).
+  3. Cartel (Sección 3D Three.js).
+  4. Enlace (Caso de estudio Brandboard Enlace).
+  5. Galería (Carrusel de proyectos Brandboard).
+- **Sección About**:
+  - Se implementó la prevención de "flashes" de contenido inicial mediante `opacity: 0` en el CSS para los elementos animados.
+  - Se añadió una secuencia de salida (fade-out y desplazamiento hacia arriba) al final de la línea de tiempo de GSAP para una transición más suave antes del unpin.
 
 ## 4. PUNTOS CRÍTICOS PARA FUTUROS CAMBIOS
 - Cualquier cambio en el orden de secciones debe hacerse en `main.tsx`.

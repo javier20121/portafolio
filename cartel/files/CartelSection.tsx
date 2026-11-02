@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { CartelScroll } from './engine'
 import './cartel.css'
+
+gsap.registerPlugin(ScrollTrigger)
 
 export interface CartelSectionProps {
   /** URL del .glb (por ejemplo "/cartel.glb") o su contenido. */
@@ -37,6 +41,7 @@ export default function CartelSection({
     CartelScroll.create({ root, stage: host, source: src, scrollLength, pin, signal: ctrl.signal })
       .then((e) => {
         engine = e
+        ScrollTrigger.refresh()
         onReady?.(e)
       })
       .catch((err: unknown) => {
@@ -44,6 +49,8 @@ export default function CartelSection({
         console.error('[CartelSection] Error al iniciar:', err)
         if (err instanceof Error) console.error('[CartelSection] Stack:', err.stack)
         setFailed(true)
+        // Si falla el visor 3D, igual habilitamos las secciones siguientes para no bloquear la web
+        onReady?.(undefined as unknown as CartelScroll)
       })
 
     return () => {
@@ -57,6 +64,7 @@ export default function CartelSection({
   return (
     <section
       ref={rootRef}
+      style={{ minHeight: '100vh' }}
       className={className ? `cartel ${className}` : 'cartel'}
       aria-labelledby="cartel-title"
     >

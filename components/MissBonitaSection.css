@@ -1,0 +1,563 @@
+/* ════════════════════════════════════════════════════
+   Sección Miss Bonita — Scrollytelling Pinned (Alta Costura & Coquette)
+   ════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800;900&family=Playfair+Display:ital,wght@1,700;1,800&display=swap');
+
+.miss-bonita-scroll-section {
+  --mb-burgundy: #8B264D;
+  --mb-mauve: #9E4266;
+  --mb-espresso: #2A111B;
+  --mb-cream: #F5E6DF;
+  --mb-paper: #FAF8F7;
+  --mb-gold: #E3C16F;
+  --mb-white: #FFFFFF;
+
+  position: relative;
+  width: 100%;
+  background-color: var(--mb-burgundy);
+  color: var(--mb-white);
+  overflow: hidden;
+}
+
+.mb-stage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: var(--mb-burgundy);
+}
+
+/* Píldora divisoria superior flotante */
+.mb-section-pill {
+  position: absolute;
+  top: clamp(1.25rem, 3vh, 2.25rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1.4rem;
+  background-color: var(--mb-cream);
+  color: var(--mb-espresso);
+  border: 2px solid var(--mb-espresso);
+  border-radius: 9999px;
+  box-shadow: 0 5px 0 var(--mb-espresso);
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.72rem, 1.1vw, 0.9rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.mb-section-pill__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--mb-gold);
+  border: 2px solid var(--mb-espresso);
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 1: Hero Editorial
+   ══════════════════════════════════════════════════ */
+.mb-hero-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.mb-hero-logo {
+  width: clamp(110px, 15vw, 160px);
+  height: auto;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.35));
+  will-change: transform, opacity;
+}
+
+.mb-hero-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 800;
+  font-size: clamp(4.2rem, 14vw, 11rem);
+  line-height: 0.85;
+  color: var(--mb-cream);
+  margin: 0;
+  text-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.mb-hero-subtitle {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.95rem, 2.2vw, 1.4rem);
+  letter-spacing: 0.25em;
+  color: var(--mb-gold);
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+}
+
+.mb-hero-desc {
+  font-family: 'Cairo', sans-serif;
+  font-size: clamp(0.95rem, 1.7vw, 1.2rem);
+  font-weight: 600;
+  color: #f0ded9;
+  max-width: 36rem;
+  margin-top: 1.75rem;
+  line-height: 1.45;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 2: Variaciones de Marca
+   ══════════════════════════════════════════════════ */
+.mb-variations-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 15;
+  opacity: 0;
+  pointer-events: none;
+  background-color: var(--mb-paper);
+  color: var(--mb-espresso);
+}
+
+.mb-swatch-bars {
+  display: flex;
+  height: 22%;
+  width: 100%;
+}
+
+.mb-swatch-bar {
+  flex: 1;
+  height: 100%;
+}
+
+.mb-variations-grid {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.mb-variation-box {
+  background: var(--mb-white);
+  border: 3px solid var(--mb-espresso);
+  border-radius: 20px;
+  box-shadow: -10px 10px 0 var(--mb-espresso);
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  width: clamp(210px, 22vw, 280px);
+  height: 230px;
+}
+
+.mb-var-iso {
+  width: 68px;
+  height: auto;
+}
+
+.mb-variation-box span {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 800;
+  font-size: 1.45rem;
+  color: var(--mb-burgundy);
+}
+
+.mb-var-text {
+  font-size: 1.75rem !important;
+  letter-spacing: 0.05em;
+}
+
+.mb-var-oval {
+  background: var(--mb-burgundy);
+  border-color: var(--mb-gold);
+}
+
+.mb-oval-ring {
+  width: 110px;
+  height: 110px;
+  border: 2px solid var(--mb-cream);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mb-oval-ring--gold {
+  border-color: var(--mb-gold);
+}
+
+.mb-var-iso-mini {
+  width: 48px;
+  height: auto;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 3: Bento Grid 4 Paneles
+   ══════════════════════════════════════════════════ */
+.mb-bento-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  padding: 2rem;
+  opacity: 0;
+  pointer-events: none;
+  background-color: var(--mb-paper);
+}
+
+.mb-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(240px, 340px));
+  grid-template-rows: repeat(2, minmax(180px, 240px));
+  gap: 1.5rem;
+}
+
+.mb-bento-panel {
+  border-radius: 20px;
+  border: 3px solid var(--mb-espresso);
+  box-shadow: -10px 10px 0 var(--mb-espresso);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.mb-bento-panel--vert {
+  background-color: var(--mb-burgundy);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.mb-bento-panel--vert span {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 800;
+  font-size: 2.8rem;
+  color: var(--mb-gold);
+  letter-spacing: 0.1em;
+}
+
+.mb-bento-panel--pattern {
+  background-color: var(--mb-cream);
+}
+
+.mb-mini-pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  place-items: center;
+}
+
+.mb-mini-pat-svg {
+  width: 42px;
+  height: auto;
+}
+
+.mb-bento-panel--dark {
+  background-color: var(--mb-espresso);
+}
+
+.mb-bento-panel--mauve {
+  background-color: var(--mb-mauve);
+  flex-direction: column;
+  gap: 1rem;
+  color: var(--mb-white);
+}
+
+.mb-bento-panel--mauve span {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: var(--mb-cream);
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 4: Packaging en 3D (Bolsas)
+   ══════════════════════════════════════════════════ */
+.mb-packaging-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3.5rem;
+  padding: 2rem;
+  opacity: 0;
+  pointer-events: none;
+  background-color: var(--mb-paper);
+}
+
+.mb-bag-card {
+  position: relative;
+  width: clamp(240px, 24vw, 300px);
+  height: clamp(320px, 32vw, 400px);
+  border-radius: 8px 8px 14px 14px;
+  border: 3px solid var(--mb-espresso);
+  box-shadow: -15px 20px 45px rgba(0, 0, 0, 0.22);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.mb-bag-burgundy {
+  background: linear-gradient(145deg, #9E4266 0%, #8B264D 65%, #6A1A39 100%);
+  color: var(--mb-gold);
+}
+
+.mb-bag-cream {
+  background: linear-gradient(145deg, #FAF8F7 0%, #F5E6DF 65%, #e2d2cb 100%);
+  color: var(--mb-burgundy);
+}
+
+.mb-bag-handle {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 75px;
+  border: 5px solid #FAF8F7;
+  border-top: none;
+  border-bottom-left-radius: 50px;
+  border-bottom-right-radius: 50px;
+}
+
+.mb-bag-handle--ribbon {
+  border-color: var(--mb-burgundy);
+  width: 100px;
+}
+
+.mb-bag-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  z-index: 2;
+}
+
+.mb-bag-iso {
+  width: 75px;
+  height: auto;
+}
+
+.mb-bag-content h4 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 800;
+  font-size: 1.8rem;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 5: Hangtags Circulares (P / M / G)
+   ══════════════════════════════════════════════════ */
+.mb-tags-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 26;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  padding: 2rem;
+  opacity: 0;
+  pointer-events: none;
+  background-color: var(--mb-espresso);
+}
+
+.mb-hangtag {
+  position: relative;
+  width: clamp(210px, 22vw, 250px);
+  height: clamp(210px, 22vw, 250px);
+  background: var(--mb-cream);
+  color: var(--mb-espresso);
+  border-radius: 50%;
+  border: 3px solid var(--mb-espresso);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.mb-tag-hole {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  background: var(--mb-espresso);
+  border-radius: 50%;
+}
+
+.mb-hangtag h5 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 800;
+  font-size: 1.35rem;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.mb-tag-price {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.mb-tag-sizes {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.mb-tag-sizes span {
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--mb-espresso);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 0.72rem;
+  background: var(--mb-white);
+}
+
+.mb-hangtag--center {
+  background: var(--mb-burgundy);
+  border-color: var(--mb-gold);
+}
+
+.mb-tag-iso-big {
+  width: 95px;
+  height: auto;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 6: Clímax — Brandboard Oficial + CTA
+   ══════════════════════════════════════════════════ */
+.mb-climax-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  padding: 2rem;
+  opacity: 0;
+  text-align: center;
+  pointer-events: none;
+  background-color: var(--mb-burgundy);
+}
+
+.mb-climax-sheet {
+  position: relative;
+  max-width: min(90vw, 750px);
+  max-height: 62vh;
+  border-radius: 1.25rem;
+  border: 4px solid var(--mb-gold);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), -8px 8px 0 var(--mb-espresso);
+  overflow: hidden;
+  background: var(--mb-white);
+}
+
+.mb-climax-sheet img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mb-climax-footer {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  font-family: 'Cairo', sans-serif;
+  font-size: clamp(0.9rem, 1.35vw, 1.1rem);
+  color: var(--mb-white);
+}
+
+.mb-climax-footer__top {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.mb-climax-footer strong {
+  color: var(--mb-gold);
+}
+
+.mb-climax-footer span {
+  color: var(--mb-cream);
+  font-weight: 800;
+}
+
+.mb-cta-button {
+  background-color: var(--mb-gold);
+  color: var(--mb-espresso);
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  text-transform: uppercase;
+  padding: 0.75rem 2rem;
+  border: 3px solid var(--mb-espresso);
+  border-radius: 12px;
+  box-shadow: -5px 5px 0 var(--mb-espresso);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.mb-cta-button:hover {
+  transform: translate(2px, -2px);
+  box-shadow: -7px 7px 0 var(--mb-espresso);
+  background-color: var(--mb-white);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .mb-bento-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 1fr);
+  }
+  .mb-packaging-scene,
+  .mb-tags-scene {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}

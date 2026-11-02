@@ -1,0 +1,784 @@
+/* ════════════════════════════════════════════════════
+   Sección Enlace — Scrollytelling Pinned (Neo-Brutalismo Pop 3D)
+   ════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Cairo:wght@600;700;800;900&display=swap');
+
+.enlace-scroll-section {
+  --e-purple: #371089;
+  --e-purple-dark: #220857;
+  --e-green: #2ee590;
+  --e-orange: #ff4612;
+  --e-yellow: #e4bd13;
+  --e-cyan: #18ffff;
+  --e-black: #111019;
+  --e-white: #ffffff;
+
+  position: relative;
+  width: 100%;
+  background-color: #0e0f0c;
+  color: var(--e-white);
+  overflow: hidden;
+}
+
+.enlace-stage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: var(--e-purple);
+}
+
+/* Marca de agua tipográfica gigante de fondo */
+.enlace-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(14vw, 24vw, 28rem);
+  color: rgba(255, 255, 255, 0.04);
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+}
+
+/* Píldora divisoria flotante superior estilo Brandboard */
+.enlace-section-pill {
+  position: absolute;
+  top: clamp(1.25rem, 3vh, 2.25rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1.4rem;
+  background-color: var(--e-orange);
+  color: var(--e-white);
+  border: 3px solid var(--e-black);
+  border-radius: 9999px;
+  box-shadow: 0 5px 0 var(--e-black);
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.72rem, 1.1vw, 0.9rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.enlace-section-pill__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--e-green);
+  border: 2px solid var(--e-black);
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 1: Identidad Central (Logo 3D Extruido)
+   ══════════════════════════════════════════════════ */
+.enlace-hero-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.enlace-hero-iso {
+  width: clamp(110px, 16vw, 185px);
+  height: auto;
+  filter: drop-shadow(-8px 10px 0 #111019) drop-shadow(0 22px 35px rgba(0, 0, 0, 0.45));
+  margin-bottom: 0.5rem;
+  will-change: transform, opacity;
+}
+
+/* Bloque inclinado con extrusión 3D igual al Brandboard */
+.enlace-hero-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: rotate(-3deg) skewX(-2deg);
+  will-change: transform, opacity;
+}
+
+.enlace-hero-title {
+  font-family: 'Anton', 'Cairo', sans-serif;
+  font-size: clamp(4.5rem, 15vw, 12.5rem);
+  line-height: 0.86;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+  -webkit-text-stroke: 4px #111019;
+  text-shadow:
+    -3px 3px 0 #111019,
+    -6px 6px 0 #111019,
+    -9px 9px 0 #111019,
+    -12px 12px 0 #111019,
+    -15px 15px 0 #111019,
+    0 25px 45px rgba(0, 0, 0, 0.55);
+}
+
+.enlace-hero-capsule {
+  display: inline-block;
+  background-color: var(--e-green);
+  color: #111019;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.82rem, 2vw, 1.35rem);
+  letter-spacing: 0.06em;
+  padding: 0.45rem 1.75rem;
+  border-radius: 14px;
+  border: 4px solid #111019;
+  box-shadow: -10px 10px 0 #111019;
+  text-transform: uppercase;
+  margin-top: 0.75rem;
+}
+
+.enlace-hero-subtitle {
+  font-family: 'Cairo', sans-serif;
+  font-size: clamp(0.95rem, 1.7vw, 1.25rem);
+  font-weight: 700;
+  color: #e8e2ff;
+  max-width: 38rem;
+  margin-top: 2rem;
+  line-height: 1.45;
+  will-change: transform, opacity;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 2: Paleta Cromática + Círculos Oficiales
+   ══════════════════════════════════════════════════ */
+.enlace-palette-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.enlace-color-col {
+  flex: 1;
+  height: 100%;
+  max-height: 100svh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(1.5rem, 3.5vw, 3rem);
+  position: relative;
+  transform: translateY(100%);
+  overflow: hidden;
+  border-right: 3px solid rgba(17, 16, 25, 0.18);
+}
+
+.enlace-color-swatch {
+  width: clamp(64px, 8vw, 110px);
+  height: clamp(64px, 8vw, 110px);
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35), -5px 6px 0 #111019;
+  margin-bottom: auto;
+  margin-top: clamp(3.5rem, 8vh, 5.5rem);
+}
+
+.enlace-color-col--green {
+  background-color: var(--e-green);
+  color: #111019;
+}
+
+.enlace-color-col--purple {
+  background-color: var(--e-purple);
+  color: #ffffff;
+}
+
+.enlace-color-col--orange {
+  background-color: var(--e-orange);
+  color: #ffffff;
+}
+
+.enlace-color-col--yellow {
+  background-color: var(--e-yellow);
+  color: #111019;
+}
+
+.enlace-color-num {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(2.5rem, 5.5vw, 5.5rem);
+  line-height: 0.85;
+  opacity: 0.25;
+}
+
+.enlace-color-name {
+  font-family: 'Cairo', sans-serif;
+  font-size: clamp(1.1rem, 2vw, 1.85rem);
+  font-weight: 900;
+  line-height: 1.1;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+
+.enlace-color-hex {
+  font-family: monospace;
+  font-size: clamp(0.85rem, 1.3vw, 1.1rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-top: 0.25rem;
+  opacity: 0.9;
+}
+
+.enlace-color-role {
+  font-size: clamp(0.75rem, 1vw, 0.95rem);
+  font-weight: 700;
+  margin-top: 0.35rem;
+  opacity: 0.8;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 3: Tipografía Pantalla Partida 50/50
+   ══════════════════════════════════════════════════ */
+.enlace-type-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.enlace-type-half {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+  position: relative;
+}
+
+.enlace-type-half--constructiva {
+  background-color: var(--e-green);
+  color: var(--e-purple);
+  border-right: 4px solid var(--e-black);
+}
+
+.enlace-type-half--corporativa {
+  background-color: var(--e-orange);
+  color: var(--e-green);
+}
+
+.enlace-type-pill {
+  background: #ffffff;
+  color: #111019;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.8rem, 1.3vw, 1.05rem);
+  letter-spacing: 0.05em;
+  padding: 0.45rem 1.6rem;
+  border-radius: 9999px;
+  border: 3px solid #111019;
+  box-shadow: 0 5px 0 #111019;
+  margin-bottom: 2.5rem;
+  text-transform: uppercase;
+}
+
+.enlace-type-specimen {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.25rem, 2.5vw, 2.5rem);
+  max-width: 100%;
+}
+
+.enlace-type-aa {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 0.85;
+}
+
+.enlace-type-aa span {
+  font-size: clamp(4.2rem, 8vw, 7.5rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.enlace-type-aa small {
+  font-size: clamp(1.1rem, 2vw, 1.75rem);
+  font-weight: 900;
+  line-height: 1.05;
+  margin-top: 0.35rem;
+}
+
+.enlace-type-aa--chido span,
+.enlace-type-aa--chido small {
+  font-family: 'Anton', sans-serif;
+  color: var(--e-purple);
+  letter-spacing: 0.02em;
+}
+
+.enlace-type-aa--cairo span,
+.enlace-type-aa--cairo small {
+  font-family: 'Cairo', sans-serif;
+  color: var(--e-green);
+}
+
+.enlace-type-alphabet {
+  font-size: clamp(0.85rem, 1.35vw, 1.25rem);
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  text-align: left;
+}
+
+.enlace-type-alphabet--chido {
+  font-family: 'Anton', sans-serif;
+  color: #165b36;
+}
+
+.enlace-type-alphabet--cairo {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  color: #601805;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 4: Iconos & Stickers Die-Cut sobre Mostaza
+   ══════════════════════════════════════════════════ */
+.enlace-stickers-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.enlace-stickers-header-pill {
+  position: absolute;
+  top: 13%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  color: #111019;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+  padding: 0.4rem 2rem;
+  border-radius: 9999px;
+  border: 3px solid #111019;
+  box-shadow: 0 5px 0 #111019;
+}
+
+/* Efecto Die-Cut Sticker (borde blanco grueso + sombra dura) */
+.enlace-flying-sticker {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 4px solid #ffffff;
+  box-shadow:
+    0 0 0 4px #111019,
+    -8px 10px 0 #111019,
+    0 20px 30px rgba(0, 0, 0, 0.28);
+  will-change: transform, opacity;
+  cursor: pointer;
+  opacity: 0;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.enlace-flying-sticker:hover {
+  transform: scale(1.12) rotate(4deg) !important;
+  z-index: 100;
+}
+
+/* Sticker 1: "Estamos en vivo" igual al brandboard */
+.enlace-sticker--live {
+  top: 22%;
+  left: 9%;
+  flex-direction: column;
+  padding: 0.65rem 1.35rem 0.8rem;
+  border-radius: 1.5rem;
+}
+
+.enlace-live-top {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.1rem, 2vw, 1.55rem);
+  color: var(--e-purple);
+  line-height: 1;
+  margin-bottom: 0.35rem;
+}
+
+.enlace-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--e-green);
+  color: #111019;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1rem, 1.8vw, 1.35rem);
+  padding: 0.2rem 1.1rem;
+  border-radius: 12px;
+  border: 3.5px solid #111019;
+  box-shadow: -4px 4px 0 #111019;
+}
+
+.enlace-live-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--e-orange);
+}
+
+.enlace-sticker--mic {
+  bottom: 16%;
+  left: 24%;
+  width: clamp(95px, 12vw, 138px);
+  height: clamp(110px, 14vw, 158px);
+  border-radius: 2.2rem;
+  padding: 0.7rem;
+}
+
+.enlace-sticker--headphones {
+  top: 28%;
+  left: 43%;
+  width: clamp(105px, 13vw, 150px);
+  height: clamp(95px, 12vw, 138px);
+  border-radius: 2.2rem;
+  padding: 0.75rem;
+}
+
+.enlace-sticker--chat {
+  bottom: 18%;
+  right: 24%;
+  width: clamp(95px, 12vw, 138px);
+  height: clamp(95px, 12vw, 138px);
+  border-radius: 2rem;
+  padding: 0.75rem;
+}
+
+.enlace-sticker--calendar {
+  top: 25%;
+  right: 9%;
+  width: clamp(95px, 12vw, 138px);
+  height: clamp(95px, 12vw, 138px);
+  border-radius: 2rem;
+  padding: 0.75rem;
+}
+
+.enlace-flying-sticker svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 5: Ecosistema Digital (Instagram UI + Merch)
+   ══════════════════════════════════════════════════ */
+.enlace-ecosystem-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.5rem, 3.5vw, 3rem);
+  padding: clamp(1.25rem, 4vw, 3rem);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Tarjeta UI Instagram fiel a la lámina */
+.enlace-ig-card {
+  background: #ffffff;
+  color: #111019;
+  width: min(92vw, 400px);
+  border-radius: 24px;
+  border: 4px solid #111019;
+  box-shadow: -12px 12px 0 #111019, 0 25px 50px rgba(0, 0, 0, 0.45);
+  padding: 1.35rem 1.5rem 1.6rem;
+  font-family: 'Cairo', sans-serif;
+}
+
+.enlace-ig-topbar {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 900;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.enlace-ig-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.enlace-ig-avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--e-purple);
+  border: 3px solid #111019;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.enlace-ig-stats {
+  display: flex;
+  flex: 1;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.enlace-ig-stats strong {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.enlace-ig-stats span {
+  font-size: 0.75rem;
+  color: #555;
+  font-weight: 700;
+}
+
+.enlace-ig-bio {
+  text-align: left;
+  margin-bottom: 1.15rem;
+}
+
+.enlace-ig-bio h4 {
+  margin: 0 0 0.2rem;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.enlace-ig-bio p {
+  margin: 0.1rem 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #222;
+}
+
+.enlace-ig-highlights {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #eee;
+}
+
+.enlace-ig-story {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.enlace-ig-ring {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2.5px solid #2ee590;
+  box-shadow: 0 0 0 2px #111019;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  color: #fff;
+}
+
+.enlace-ig-mini-live {
+  background: #2ee590;
+  color: #111019;
+  font-size: 0.55rem;
+  font-weight: 900;
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1.5px solid #111019;
+}
+
+.enlace-ig-story small {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #222;
+  white-space: nowrap;
+}
+
+/* Columna Derecha: Tarjetas Merch & Cabina */
+.enlace-merch-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 390px;
+}
+
+.enlace-merch-card {
+  padding: 1.5rem;
+  border-radius: 22px;
+  border: 4px solid #111019;
+  box-shadow: -10px 10px 0 #111019;
+  text-align: left;
+  font-family: 'Cairo', sans-serif;
+}
+
+.enlace-merch-card--mugs {
+  background: linear-gradient(135deg, #00e5ff 0%, #00b8d4 100%);
+  color: #111019;
+}
+
+.enlace-merch-card--studio {
+  background: var(--e-purple-dark);
+  color: #ffffff;
+}
+
+.enlace-merch-tag {
+  display: inline-block;
+  background: #111019;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.85rem;
+  border-radius: 9999px;
+  margin-bottom: 0.6rem;
+}
+
+.enlace-merch-tag--green {
+  background: var(--e-green);
+  color: #111019;
+}
+
+.enlace-merch-card h5 {
+  margin: 0 0 0.4rem;
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.enlace-merch-card p {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.4;
+  opacity: 0.92;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 6: Lámina Completa & Cierre Editorial
+   ══════════════════════════════════════════════════ */
+.enlace-climax-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  padding: 2rem;
+  opacity: 0;
+  text-align: center;
+  pointer-events: none;
+}
+
+.enlace-climax-sheet {
+  position: relative;
+  max-width: min(90vw, 750px);
+  max-height: 62vh;
+  border-radius: 1.5rem;
+  border: 5px solid #111019;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), -10px 10px 0 #111019;
+  overflow: hidden;
+  background: #111019;
+}
+
+.enlace-climax-sheet img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.enlace-climax-footer {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  font-family: 'Cairo', sans-serif;
+  font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+  color: #ffffff;
+}
+
+.enlace-climax-footer__top {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.enlace-climax-footer strong {
+  color: var(--e-green);
+}
+
+.enlace-climax-footer span {
+  color: #fa1b8c;
+  font-weight: 800;
+}
+
+.enlace-cta-button {
+  background-color: var(--e-green);
+  color: #111019;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  text-transform: uppercase;
+  padding: 0.75rem 2rem;
+  border: 4px solid #111019;
+  border-radius: 12px;
+  box-shadow: -6px 6px 0 #111019;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.enlace-cta-button:hover {
+  transform: translate(2px, -2px);
+  box-shadow: -8px 8px 0 #111019;
+  background-color: #ffffff;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .enlace-merch-col {
+    display: none;
+  }
+  .enlace-type-scene {
+    flex-direction: column;
+  }
+  .enlace-type-half--constructiva {
+    border-right: none;
+    border-bottom: 4px solid var(--e-black);
+  }
+}

@@ -1,0 +1,899 @@
+/* ════════════════════════════════════════════════════
+   Sección Farmacia Fiorela — Scrollytelling Pinned (Salud & Elegancia)
+   ════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800;900&family=Cormorant+Garamond:ital,wght@1,600;1,700&family=Playfair+Display:ital,wght@1,700;1,800&display=swap');
+
+.fiorela-scroll-section {
+  --f-green: #064840;
+  --f-green-deep: #04332d;
+  --f-gold: #c69c47;
+  --f-gold-light: #e2be6b;
+  --f-black: #181818;
+  --f-paper: #f4f4f2;
+  --f-white: #ffffff;
+
+  position: relative;
+  width: 100%;
+  background-color: var(--f-paper);
+  color: var(--f-black);
+  overflow: hidden;
+}
+
+.f-stage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: var(--f-paper);
+  /* Textura sutil de papel lino como en la cabecera del brandboard */
+  background-image: radial-gradient(rgba(6, 72, 64, 0.04) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Cinta lateral superior izquierda ("MARCA PRINCIPAL") */
+.f-top-ribbon {
+  position: absolute;
+  top: clamp(1.25rem, 3vh, 2.2rem);
+  left: 0;
+  z-index: 45;
+  background-color: var(--f-gold);
+  color: var(--f-white);
+  font-family: 'Cairo', sans-serif;
+  font-weight: 800;
+  font-size: clamp(0.78rem, 1.1vw, 0.95rem);
+  letter-spacing: 0.08em;
+  padding: 0.5rem 1.8rem 0.5rem 1.4rem;
+  border-top-right-radius: 9999px;
+  border-bottom-right-radius: 9999px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+}
+
+/* ── Componente Wordmark ("Fiorela FARMACIA") ── */
+.f-wordmark {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+}
+
+.f-wordmark__main {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+
+.f-wordmark__swash {
+  width: 0.42em;
+  height: 0.35em;
+  margin-left: -0.06em;
+  transform: translateY(0.06em);
+}
+
+.f-wordmark__sub {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  margin-top: 0.35rem;
+  margin-right: -0.34em;
+  text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 1: Hero — Marca Principal
+   ══════════════════════════════════════════════════ */
+.f-hero-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.f-hero-logo-iso {
+  width: clamp(115px, 14vw, 165px);
+  height: auto;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 14px 25px rgba(6, 72, 64, 0.14));
+  will-change: transform, opacity;
+}
+
+.f-hero-wordmark .f-wordmark__main {
+  font-size: clamp(4.2rem, 11vw, 8.2rem);
+}
+
+.f-hero-wordmark .f-wordmark__sub {
+  font-size: clamp(0.95rem, 1.8vw, 1.45rem);
+}
+
+.f-hero-desc {
+  font-family: 'Cairo', sans-serif;
+  font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+  font-weight: 600;
+  color: #3f4d4a;
+  max-width: 36rem;
+  margin-top: 1.75rem;
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 2: Variaciones de Marca + 5 App Icons + Paleta
+   ══════════════════════════════════════════════════ */
+.f-system-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 15;
+  opacity: 0;
+  pointer-events: none;
+  background-color: var(--f-white);
+}
+
+.f-sys-top-split {
+  position: relative;
+  flex: 1.15;
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+}
+
+.f-sys-CenterPillWrap {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+}
+
+.f-sys-center-pill {
+  display: inline-block;
+  background: var(--f-white);
+  color: var(--f-black);
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.78rem, 1.15vw, 0.98rem);
+  letter-spacing: 0.05em;
+  padding: 0.45rem 1.8rem;
+  border-radius: 9999px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
+}
+
+.f-sys-split {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.f-sys-split--gold {
+  background-color: var(--f-gold);
+}
+
+.f-sys-split--green {
+  background-color: var(--f-green);
+}
+
+.f-sys-horizontal-lockup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.f-sys-horiz-iso {
+  width: clamp(68px, 7.5vw, 96px);
+  height: auto;
+}
+
+.f-sys-horiz-word .f-wordmark__main {
+  font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+}
+
+.f-sys-horiz-word .f-wordmark__sub {
+  font-size: clamp(0.65rem, 0.95vw, 0.85rem);
+}
+
+.f-sys-solo-iso {
+  width: clamp(90px, 10vw, 130px);
+  height: auto;
+}
+
+/* Los 5 íconos de aplicación flotando en la divisoria */
+.f-app-tiles-row {
+  position: relative;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  gap: clamp(0.75rem, 1.8vw, 1.5rem);
+  margin-top: -3.2rem;
+  margin-bottom: 1.25rem;
+  padding: 0 1rem;
+}
+
+.f-app-tile {
+  width: clamp(68px, 8.5vw, 108px);
+  height: clamp(68px, 8.5vw, 108px);
+  border-radius: 22%;
+  padding: 1.1rem;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease;
+}
+
+.f-app-tile:hover {
+  transform: translateY(-6px) scale(1.05);
+}
+
+.f-app-tile--light {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.f-app-tile svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Mitad Inferior: 4 Círculos de Paleta */
+.f-sys-bottom-palette {
+  flex: 0.85;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 1.5rem;
+}
+
+.f-swatches-row {
+  display: flex;
+  gap: clamp(1rem, 2.5vw, 2.2rem);
+  align-items: center;
+  justify-content: center;
+}
+
+.f-swatch-circle {
+  width: clamp(64px, 7.5vw, 98px);
+  height: clamp(64px, 7.5vw, 98px);
+  border-radius: 50%;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+}
+
+.f-swatch-circle--gradient {
+  background: linear-gradient(135deg, #c69c47 0%, #f3d87d 55%, #b88a32 100%);
+}
+
+.f-palette-caption {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.85rem, 1.2vw, 1.05rem);
+  letter-spacing: 0.06em;
+  color: var(--f-black);
+  margin-top: 1.1rem;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 3: Pantalla Partida Tipografía Andalia + Trama
+   ══════════════════════════════════════════════════ */
+.f-type-pattern-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.f-tp-half {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 2.5rem;
+}
+
+.f-tp-half--dark {
+  background-color: var(--f-black);
+  color: var(--f-white);
+}
+
+.f-tp-half--pattern {
+  background-color: var(--f-green);
+}
+
+.f-tp-pill {
+  background: var(--f-white);
+  color: var(--f-black);
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  padding: 0.4rem 1.6rem;
+  border-radius: 9999px;
+  margin-bottom: 2.2rem;
+  align-self: flex-start;
+  margin-left: 8%;
+}
+
+.f-tp-specimen {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 2.75rem);
+}
+
+.f-tp-aa-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 0.9;
+}
+
+.f-tp-aa {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(3.8rem, 6.5vw, 5.8rem);
+  color: var(--f-gold);
+}
+
+.f-tp-fontname {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.2rem, 2vw, 1.65rem);
+  color: var(--f-white);
+  margin-top: 0.3rem;
+}
+
+.f-tp-alphabet {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+  line-height: 1.32;
+  letter-spacing: 0.04em;
+  color: var(--f-white);
+  text-align: left;
+}
+
+/* Mosaico de Cruces en la mitad derecha */
+.f-pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 1.25rem;
+  width: 115%;
+  height: 115%;
+  place-items: center;
+}
+
+.f-pattern-cell {
+  width: clamp(72px, 8.5vw, 115px);
+  height: clamp(72px, 8.5vw, 115px);
+}
+
+.f-pattern-cell__svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 4: Packaging (Bolsa Ocre + Credencial Andrea)
+   ══════════════════════════════════════════════════ */
+.f-packaging-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2.5rem, 6vw, 5.5rem);
+  padding: 2rem;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.f-bag-showcase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+/* Bolsa de Compras Mostaza en 3D */
+.f-bag-mockup {
+  position: relative;
+  width: clamp(230px, 22vw, 290px);
+  height: clamp(280px, 28vw, 350px);
+  background: linear-gradient(145deg, #dfbe6f 0%, #c69c47 65%, #a8802f 100%);
+  border-radius: 6px 6px 10px 10px;
+  box-shadow:
+    18px 18px 0 rgba(0, 0, 0, 0.25),
+    0 28px 50px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.f-bag-handle {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 86px;
+  height: 75px;
+  border: 5px solid #f4f4f2;
+  border-top: none;
+  border-bottom-left-radius: 50px;
+  border-bottom-right-radius: 50px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.f-bag-watermark {
+  position: absolute;
+  bottom: -35px;
+  right: -35px;
+  width: 240px;
+  height: 240px;
+  pointer-events: none;
+}
+
+.f-bag-front-logo {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: -1rem;
+}
+
+.f-bag-iso {
+  width: 44px;
+  height: 44px;
+}
+
+.f-bag-word .f-wordmark__main {
+  font-size: 1.9rem;
+}
+
+.f-bag-word .f-wordmark__sub {
+  font-size: 0.48rem;
+}
+
+.f-MockupLabel {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  color: var(--f-gold-light);
+}
+
+/* Credencial / Lanyard de Andrea Dessbesel */
+.f-lanyard-showcase {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.f-lanyard-card {
+  position: relative;
+  width: clamp(220px, 21vw, 265px);
+  height: clamp(330px, 32vw, 395px);
+  background: linear-gradient(165deg, #09594f 0%, #053831 100%);
+  border-radius: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2.2rem 1.5rem 0;
+  overflow: hidden;
+  transform: rotate(-5deg);
+}
+
+.f-lanyard-ribbon {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%) rotate(12deg);
+  width: 22px;
+  height: 65px;
+  background: var(--f-gold);
+}
+
+.f-lanyard-slot {
+  width: 42px;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 99px;
+  margin-top: -1rem;
+}
+
+.f-lanyard-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.f-lanyard-iso {
+  width: 42px;
+  height: 42px;
+}
+
+.f-lanyard-word .f-wordmark__main {
+  font-size: 1.7rem;
+}
+
+.f-lanyard-word .f-wordmark__sub {
+  font-size: 0.45rem;
+}
+
+.f-lanyard-person {
+  text-align: left;
+  width: 100%;
+  padding-left: 0.5rem;
+}
+
+.f-lanyard-firstname {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 1.55rem;
+  color: var(--f-gold);
+  line-height: 1;
+}
+
+.f-lanyard-lastname {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 1.45rem;
+  letter-spacing: 0.04em;
+  color: var(--f-white);
+  line-height: 1.1;
+}
+
+.f-lanyard-role {
+  display: inline-block;
+  background: var(--f-gold);
+  color: var(--f-black);
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  padding: 0.18rem 0.65rem;
+  border-radius: 4px;
+  margin-top: 0.25rem;
+}
+
+.f-lanyard-bottom-pattern {
+  width: 120%;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 0.75rem 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  place-items: center;
+}
+
+.f-lanyard-mini-cross {
+  width: 32px;
+  height: 32px;
+  opacity: 0.85;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 5: Tarjetas Personales + Cartel Luminoso
+   ══════════════════════════════════════════════════ */
+.f-collateral-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 26;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  padding: 2rem;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.f-bcards-stack {
+  position: relative;
+  width: min(92vw, 430px);
+  height: 320px;
+}
+
+.f-bcard {
+  position: absolute;
+  width: 320px;
+  height: 185px;
+  border-radius: 10px;
+  box-shadow: 0 22px 45px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.f-bcard--gold {
+  top: 10px;
+  left: 0;
+  background: linear-gradient(135deg, #dfbe6f 0%, #c69c47 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-16deg);
+  z-index: 3;
+}
+
+.f-bcard__bg-cross {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+}
+
+.f-bcard__bg-cross--tl {
+  top: -15px;
+  left: -15px;
+}
+
+.f-bcard__bg-cross--br {
+  bottom: -15px;
+  right: -15px;
+}
+
+.f-bcard__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.f-bcard__center-iso {
+  width: 38px;
+  height: 38px;
+}
+
+.f-bcard__center .f-wordmark__main {
+  font-size: 1.85rem;
+}
+
+.f-bcard__center .f-wordmark__sub {
+  font-size: 0.48rem;
+}
+
+.f-bcard--white {
+  bottom: 0;
+  right: 0;
+  background: var(--f-white);
+  color: var(--f-black);
+  padding: 1.35rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transform: rotate(8deg);
+  z-index: 2;
+}
+
+.f-bcard__white-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: flex-end;
+}
+
+.f-bcard__white-iso {
+  width: 34px;
+  height: 34px;
+}
+
+.f-bcard__white-top .f-wordmark__main {
+  font-size: 1.5rem;
+}
+
+.f-bcard__white-top .f-wordmark__sub {
+  font-size: 0.42rem;
+}
+
+.f-bcard__white-contact {
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: #222;
+  text-align: left;
+}
+
+/* Cartel Luminoso Exterior (Lightbox) */
+.f-signage-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 360px;
+}
+
+.f-signage-wall {
+  width: 310px;
+  height: 230px;
+  background: linear-gradient(135deg, #d7cec2 0%, #b8ae9f 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.f-lightbox {
+  display: flex;
+  transform: perspective(600px) rotateY(-18deg) rotateX(6deg);
+  filter: drop-shadow(-15px 20px 25px rgba(0, 0, 0, 0.35));
+}
+
+.f-lightbox__face {
+  width: 210px;
+  height: 165px;
+  background: linear-gradient(135deg, #e2be6b 0%, #c69c47 100%);
+  border: 3px solid #e6e2da;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.f-lightbox__iso {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.f-lightbox__face .f-wordmark__main {
+  font-size: 1.85rem;
+}
+
+.f-lightbox__face .f-wordmark__sub {
+  font-size: 0.48rem;
+}
+
+.f-lightbox__side {
+  width: 22px;
+  height: 165px;
+  background: #dedad2;
+  transform: skewY(12deg);
+  transform-origin: left top;
+}
+
+.f-signage-caption {
+  margin-top: 1.15rem;
+  text-align: center;
+  color: var(--f-white);
+  font-family: 'Cairo', sans-serif;
+}
+
+.f-signage-caption span {
+  font-weight: 900;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: var(--f-gold-light);
+}
+
+.f-signage-caption p {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 6: Clímax — Brandboard Oficial Completo + CTA
+   ══════════════════════════════════════════════════ */
+.f-climax-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  padding: 2rem;
+  opacity: 0;
+  text-align: center;
+  pointer-events: none;
+}
+
+.f-climax-sheet {
+  position: relative;
+  max-width: min(90vw, 750px);
+  max-height: 62vh;
+  border-radius: 1.25rem;
+  border: 4px solid var(--f-gold);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), -8px 8px 0 var(--f-black);
+  overflow: hidden;
+  background: var(--f-white);
+}
+
+.f-climax-sheet img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.f-climax-footer {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  font-family: 'Cairo', sans-serif;
+  font-size: clamp(0.9rem, 1.35vw, 1.1rem);
+  color: var(--f-white);
+}
+
+.f-climax-footer__top {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.f-climax-footer strong {
+  color: var(--f-gold-light);
+}
+
+.f-climax-footer span {
+  color: #fa1b8c;
+  font-weight: 800;
+}
+
+.f-cta-button {
+  background-color: var(--f-gold);
+  color: var(--f-black);
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  text-transform: uppercase;
+  padding: 0.75rem 2rem;
+  border: 3px solid var(--f-black);
+  border-radius: 12px;
+  box-shadow: -5px 5px 0 var(--f-black);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.f-cta-button:hover {
+  transform: translate(2px, -2px);
+  box-shadow: -7px 7px 0 var(--f-black);
+  background-color: var(--f-white);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .f-type-pattern-scene {
+    flex-direction: column;
+  }
+  .f-packaging-scene,
+  .f-collateral-scene {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .f-bag-showcase,
+  .f-signage-box {
+    display: none;
+  }
+}

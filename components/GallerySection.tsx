@@ -45,7 +45,7 @@ export default function GallerySection() {
       tl.to(card, {
         '--card-focus': 1,
         flexGrow: 9,
-        duration: 0.5, // Tiempo de permanencia
+        duration: 0.5,
       })
 
       // 3. Salida: la tarjeta pierde el foco para dar paso a la siguiente
@@ -59,11 +59,13 @@ export default function GallerySection() {
       }
     })
 
-    // Efectos de Parallax y Escala Interna (se mantienen)
+    // Efectos de Parallax y Escala Interna
+    const paralaxTriggers: ScrollTrigger[] = []
+
     cards.forEach((card) => {
       const img = card.querySelector('img')
       if (img) {
-        gsap.to(img, {
+        const st1 = gsap.to(img, {
           yPercent: 15,
           ease: 'none',
           scrollTrigger: {
@@ -72,9 +74,9 @@ export default function GallerySection() {
             end: 'bottom top',
             scrub: true,
           },
-        })
+        }).scrollTrigger
 
-        gsap.to(img, {
+        const st2 = gsap.to(img, {
           scale: 1.1,
           ease: 'sine.inOut',
           scrollTrigger: {
@@ -83,12 +85,18 @@ export default function GallerySection() {
             end: 'center center',
             scrub: true,
           },
-        })
+        }).scrollTrigger
+
+        if (st1) paralaxTriggers.push(st1)
+        if (st2) paralaxTriggers.push(st2)
       }
     })
 
+    // Limpieza SOLO de los triggers propios de esta sección
     return () => {
-      ScrollTrigger.getAll().forEach(t => t.kill())
+      tl.scrollTrigger?.kill()
+      tl.kill()
+      paralaxTriggers.forEach(t => t.kill())
     }
   }, [])
 
